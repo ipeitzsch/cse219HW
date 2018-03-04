@@ -1,0 +1,31 @@
+.axis-tick-mark {
+    -fx-stroke: green;
+    -fx-stroke-width: 3;
+
+}
+.axis-minor-tick-mark {
+    -fx-stroke: black;
+}
+
+.axis {
+    -fx-tick-length: 15;
+    -fx-tick-label-fill: #914800;
+    -fx-stroke: none;
+}
+
+.chart-plot-background {
+    -fx-border-color: black;
+    -fx-border-width: 5;
+}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: none;
+}
+
+.chart-horizontal-grid-lines {
+    -fx-stroke: none;
+}
+.chart {
+	-fx-horizontal-zero-line-visible:	false;
+	-fx-vertical-zero-line-visible:		false;
+}
