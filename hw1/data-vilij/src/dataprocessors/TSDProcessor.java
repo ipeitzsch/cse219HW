@@ -1,7 +1,11 @@
 package dataprocessors;
 
+import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.StackPane;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,16 +75,35 @@ public final class TSDProcessor {
      * @param chart the specified chart
      */
     void toChartData(XYChart<Number, Number> chart) {
+
         Set<String> labels = new HashSet<>(dataLabels.values());
+        int count = 0;
         for (String label : labels) {
             XYChart.Series<Number, Number> series = new XYChart.Series<>();
             series.setName(label);
             dataLabels.entrySet().stream().filter(entry -> entry.getValue().equals(label)).forEach(entry -> {
                 Point2D point = dataPoints.get(entry.getKey());
-                series.getData().add(new XYChart.Data<>(point.getX(), point.getY()));
+                series.getData().add(new XYChart.Data<>(point.getX(), point.getY(), entry.getKey()));
+
+
             });
             chart.getData().add(series);
+            Set<Node>  n = chart.lookupAll(".series"  + count);
+            for(Node x : n)
+            {
+                x.setStyle("-fx-stroke: none;");
+            }
+            count++;
         }
+        setTooltip(chart);
+        average(chart);
+        Set<Node>  n = chart.lookupAll(".series" + count);
+        for(Node x : n)
+        {
+            x.setStyle("-fx-shape: \"M0,0 L2,0 L4,0 L7,0 L9,0 L4,0 Z\";");
+
+        }
+
     }
 
     void clear() {
@@ -92,5 +115,77 @@ public final class TSDProcessor {
         if (!name.startsWith("@"))
             throw new InvalidDataNameException(name);
         return name;
+    }
+    private void setTooltip(XYChart<Number, Number> chart)
+    {
+        ObservableList<XYChart.Series<Number,Number>> a = chart.getData();
+        for(XYChart.Series<Number, Number> ser : a)
+        {
+            ObservableList<XYChart.Data<Number,Number>> o = ser.getData();
+            for(XYChart.Data<Number,Number> c : o)
+            {
+                Tooltip t = new Tooltip(c.getExtraValue().toString());
+                Tooltip.install(c.getNode(), t);
+            }
+        }
+    }
+    private void average(XYChart<Number, Number> chart)
+    {
+        ObservableList<XYChart.Series<Number,Number>> a = chart.getData();
+        double total = 0;
+        double s = 0;
+        ArrayList<Double> maxes = new ArrayList<Double>();
+        ArrayList<Double> mins = new ArrayList<Double>();
+        for(XYChart.Series<Number, Number> ser : a)
+        {
+            ObservableList<XYChart.Data<Number,Number>> o = ser.getData();
+            double max = (Double)o.get(0).getXValue();
+            double min = (Double)o.get(0).getXValue();
+            for(XYChart.Data<Number,Number> c : o)
+            {
+                total += (Double)c.getYValue();
+                s++;
+                if(max < (Double)c.getXValue())
+                {
+                    max = (Double) c.getXValue();
+                }
+                if(min > (Double)c.getXValue())
+                {
+                    min = (Double)c.getXValue();
+                }
+            }
+            maxes.add(max);
+            mins.add(min);
+        }
+        XYChart.Series<Number, Number> x = new XYChart.Series<>();
+        x.getData().add(new XYChart.Data<>(getmin(mins), total / s));
+        x.getData().add(new XYChart.Data<>(getmax(maxes), total / s));
+        x.setName("AVERAGE");
+        chart.getData().add(x);
+    }
+
+    private double getmax(ArrayList<Double> a)
+    {
+        double m = a.get(0);
+        for(int i = 1; i < a.size(); i++)
+        {
+            if(m < a.get(i))
+            {
+                m = a.get(i);
+            }
+        }
+        return m;
+    }
+    private double getmin(ArrayList<Double> a)
+    {
+        double m = a.get(0);
+        for(int i = 1; i < a.size(); i++)
+        {
+            if(m > a.get(i))
+            {
+                m = a.get(i);
+            }
+        }
+        return m;
     }
 }

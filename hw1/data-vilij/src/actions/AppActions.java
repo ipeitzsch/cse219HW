@@ -1,9 +1,14 @@
 package actions;
 
+import dataprocessors.AppData;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.SnapshotParameters;
+import javafx.scene.image.*;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import settings.AppPropertyTypes;
+import ui.AppUI;
 import vilij.components.ActionComponent;
 import vilij.components.ConfirmationDialog;
 import vilij.components.Dialog;
@@ -11,12 +16,14 @@ import vilij.components.ErrorDialog;
 import vilij.propertymanager.PropertyManager;
 import vilij.settings.PropertyTypes;
 import vilij.templates.ApplicationTemplate;
+import vilij.templates.UITemplate;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import javax.imageio.ImageIO;
+import java.io.*;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
+import java.util.*;
 
 import static java.io.File.separator;
 import static vilij.settings.PropertyTypes.SAVE_WORK_TITLE;
@@ -43,7 +50,7 @@ public final class AppActions implements ActionComponent {
     }
 
     public void setIsUnsavedProperty(boolean property) { isUnsaved.set(property); }
-
+    public SimpleBooleanProperty getIsUnsavedProperty() {return isUnsaved;}
     @Override
     public void handleNewRequest() {
         try {
@@ -52,18 +59,94 @@ public final class AppActions implements ActionComponent {
                 applicationTemplate.getUIComponent().clear();
                 isUnsaved.set(false);
                 dataFilePath = null;
+                AppUI a = (AppUI)(applicationTemplate.getUIComponent());
+                a.setNewDisable(true);
+                a.setSaveDisable(true);
             }
         } catch (IOException e) { errorHandlingHelper(); }
     }
 
     @Override
     public void handleSaveRequest() {
-        // TODO: NOT A PART OF HW 1
+
+        PropertyManager    manager = applicationTemplate.manager;
+        if(dataFilePath == null)
+        {
+            FileChooser fileChooser = new FileChooser();
+            String      dataDirPath = "/" + manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name());
+            URL         dataDirURL  = getClass().getResource(dataDirPath);
+
+            if (dataDirURL == null)
+                errorHandlingHelper();
+
+            fileChooser.setInitialDirectory(new File(dataDirURL.getFile()));
+            fileChooser.setTitle(manager.getPropertyValue(SAVE_WORK_TITLE.name()));
+
+            String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
+            String extension   = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
+            ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
+                    String.format("*.%s", extension));
+
+            fileChooser.getExtensionFilters().add(extFilter);
+            File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
+            if (selected != null) {
+                dataFilePath = selected.toPath();
+                try {
+                    save();
+                    isUnsaved.set(false);
+                    AppUI a = (AppUI)(applicationTemplate.getUIComponent());
+                    a.setSaveDisable(true);
+                }
+                catch(IOException e)
+                {
+                    errorHandlingHelper();
+                }
+            }
+            else
+            {
+                errorHandlingHelper();
+            }
+        }
+        else
+        {
+            try {
+                save();
+                isUnsaved.set(false);
+                AppUI a = (AppUI)(applicationTemplate.getUIComponent());
+                a.setSaveDisable(true);
+            }
+            catch(IOException e)
+            {
+                errorHandlingHelper();
+            }
+        }
+        // TODO: DISABLE BUTTON
     }
 
     @Override
     public void handleLoadRequest() {
-        // TODO: NOT A PART OF HW 1
+        PropertyManager    manager = applicationTemplate.manager;
+        FileChooser fileChooser = new FileChooser();
+
+        String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
+        String extension   = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
+        ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
+                String.format("*.%s", extension));
+
+        fileChooser.getExtensionFilters().add(extFilter);
+
+        File selected = fileChooser.showOpenDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
+
+        if(selected != null)
+        {
+                AppData a = (AppData)(applicationTemplate.getDataComponent());
+                a.clear();
+                AppUI b = (AppUI)(applicationTemplate.getUIComponent());
+                b.clear();
+                dataFilePath = selected.toPath();
+                a.loadData(dataFilePath);
+                a.displayData();
+        }
     }
 
     @Override
@@ -76,11 +159,29 @@ public final class AppActions implements ActionComponent {
 
     @Override
     public void handlePrintRequest() {
+        
         // TODO: NOT A PART OF HW 1
     }
 
     public void handleScreenshotRequest() throws IOException {
-        // TODO: NOT A PART OF HW 1
+        AppUI a = (AppUI)(applicationTemplate.getUIComponent());
+        Image img = a.getChart().snapshot(new SnapshotParameters(), null);
+
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Image");
+
+        String description = "Image File";
+        String extension = ".png";
+
+        ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
+                String.format("*.%s", extension));
+        fileChooser.getExtensionFilters().addAll(extFilter);
+        File file = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
+        if (file != null) {
+            ImageIO.write(SwingFXUtils.fromFXImage(img,null), "png", file);
+
+        }
     }
 
     /**
@@ -106,7 +207,7 @@ public final class AppActions implements ActionComponent {
         if (dialog.getSelectedOption().equals(ConfirmationDialog.Option.YES)) {
             if (dataFilePath == null) {
                 FileChooser fileChooser = new FileChooser();
-                String      dataDirPath = separator + manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name());
+                String      dataDirPath = "/" + manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name());
                 URL         dataDirURL  = getClass().getResource(dataDirPath);
 
                 if (dataDirURL == null)
