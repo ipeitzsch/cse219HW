@@ -2,7 +2,7 @@ package dataprocessors;
 
 import settings.AppPropertyTypes;
 import ui.AppUI;
-import vilij.components.ConfirmationDialog;
+
 import vilij.components.DataComponent;
 import vilij.components.Dialog;
 import vilij.components.ErrorDialog;

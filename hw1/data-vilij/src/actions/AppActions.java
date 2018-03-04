@@ -3,9 +3,8 @@ package actions;
 import dataprocessors.AppData;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.geometry.Point2D;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.image.*;
+import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import settings.AppPropertyTypes;
@@ -17,18 +16,20 @@ import vilij.components.ErrorDialog;
 import vilij.propertymanager.PropertyManager;
 import vilij.settings.PropertyTypes;
 import vilij.templates.ApplicationTemplate;
-import vilij.templates.UITemplate;
 
 import javax.imageio.ImageIO;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
-import static java.io.File.separator;
 import static vilij.settings.PropertyTypes.SAVE_WORK_TITLE;
 
 /**
@@ -213,8 +214,9 @@ public final class AppActions implements ActionComponent {
         File file = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
         if (file != null) {
             ImageIO.write(SwingFXUtils.fromFXImage(img,null), "png", file);
-
+            a.setScreenShotDisable(true);
         }
+
     }
 
     /**

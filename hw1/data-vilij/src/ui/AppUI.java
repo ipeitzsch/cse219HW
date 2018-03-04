@@ -2,16 +2,13 @@ package ui;
 
 import actions.AppActions;
 import dataprocessors.AppData;
-import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -25,12 +22,8 @@ import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
 import vilij.templates.UITemplate;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.util.ArrayList;
-
-import javafx.beans.property.*;
 
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
@@ -62,6 +55,7 @@ public final class AppUI extends UITemplate {
     }
     public void setSaveDisable(boolean b){ saveButton.setDisable(b);}
     public void setNewDisable(boolean b) { newButton.setDisable(b);}
+    public void setScreenShotDisable(boolean b) { scrnshotButton.setDisable(b);}
     public void setText(String s) {textArea.setText(s); }
     public void setChange(ArrayList<String> s)
     {
@@ -107,7 +101,7 @@ public final class AppUI extends UITemplate {
                                               manager.getPropertyValue(AppPropertyTypes.SCREENSHOT_ICON.name()));
         scrnshotButton = setToolbarButton(scrnshoticonPath,
                                           manager.getPropertyValue(AppPropertyTypes.SCREENSHOT_TOOLTIP.name()),
-                                          false);
+                                          true);
         toolBar.getItems().add(scrnshotButton);
     }
 
@@ -223,6 +217,7 @@ public final class AppUI extends UITemplate {
                     dataComponent.clear();
                     dataComponent.loadData(textArea.getText());
                     dataComponent.displayData();
+                    scrnshotButton.setDisable(false);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
