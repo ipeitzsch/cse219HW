@@ -28,6 +28,7 @@ import vilij.templates.UITemplate;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.util.ArrayList;
 
 import javafx.beans.property.*;
 
@@ -62,7 +63,28 @@ public final class AppUI extends UITemplate {
     public void setSaveDisable(boolean b){ saveButton.setDisable(b);}
     public void setNewDisable(boolean b) { newButton.setDisable(b);}
     public void setText(String s) {textArea.setText(s); }
-    public void setRowCount(int i) { textArea.setPrefRowCount(i);}
+    public void setChange(ArrayList<String> s)
+    {
+        textArea.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                String t[] = newValue.split("\n");
+                for(int i = 0; i < t.length; i++)
+                {
+                    if(!s.get(i).equals(t[i]))
+                    {
+                        s.remove(i);
+                    }
+                }
+                String h = "";
+                for(int i = 0; i < 10 || i < s.size(); i++)
+                {
+                    h = h + s.get(i) + "\n";
+                }
+                textArea.setText(h);
+            }
+        });
+    }
 
     public void setReadOnly(boolean b)
     {

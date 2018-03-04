@@ -3,6 +3,7 @@ package actions;
 import dataprocessors.AppData;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Point2D;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.*;
 import javafx.stage.FileChooser;
@@ -24,6 +25,8 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 import static java.io.File.separator;
 import static vilij.settings.PropertyTypes.SAVE_WORK_TITLE;
@@ -65,7 +68,37 @@ public final class AppActions implements ActionComponent {
             }
         } catch (IOException e) { errorHandlingHelper(); }
     }
+    public boolean checkValid(String text)
+    {
+        ArrayList<Integer> a = new ArrayList<>();
+        AtomicBoolean b = new AtomicBoolean();
+        SortedSet<String> g = new TreeSet<>();
+        b.set(true);
+        Stream.of(text.split("\n"))
+                .map(line -> Arrays.asList(line.split("\t")))
+                .forEach(list -> {
+                    try {
 
+                        if(!(list.get(0).startsWith("@")) || !(g.add(list.get(0))))
+                        {
+                            throw new Exception("Invalid/Repeated name: " + list.get(0) + ".");
+                        }
+                        String[] pair  = list.get(2).split(",");
+                        int i = Integer.parseInt(pair[0]);
+                        int j = Integer.parseInt(pair[1]);
+                        a.add(0);
+                    } catch (Exception e) {
+                        b.set(false);
+                        ErrorDialog     dialog   = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
+                        PropertyManager manager  = applicationTemplate.manager;
+                        String          errTitle = manager.getPropertyValue(PropertyTypes.SAVE_ERROR_TITLE.name());
+                        String          errMsg   = "Data in text area is not valid. ";
+                        String          errInput = "Error on line " + (a.size() + 1) + ". " + e.getMessage();
+                        dialog.show(errTitle, errMsg + errInput);
+                    }
+                });
+        return b.get();
+    }
     @Override
     public void handleSaveRequest() {
 
@@ -89,7 +122,7 @@ public final class AppActions implements ActionComponent {
 
             fileChooser.getExtensionFilters().add(extFilter);
             File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
-            if (selected != null) {
+            if (selected != null && checkValid(((AppUI) applicationTemplate.getUIComponent()).getCurrentText())) {
                 dataFilePath = selected.toPath();
                 try {
                     save();

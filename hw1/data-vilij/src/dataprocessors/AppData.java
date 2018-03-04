@@ -15,9 +15,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Scanner;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
 /**
  * This is the concrete application-specific implementation of the data component defined by the Vilij framework.
@@ -38,34 +38,32 @@ public class AppData implements DataComponent {
     @Override
     public void loadData(Path dataFilePath) {
         File f = dataFilePath.toFile();
+        int count = 0;
+        ArrayList<String> S = new ArrayList<>();
+        String s = "";
         try {
             Scanner sc = new Scanner(f);
-            String s = "";
-            int count = 0;
-            SortedSet<String> set = new TreeSet<>();
+
             while(sc.hasNextLine())
             {
                 String s1 = sc.nextLine();
-                String t[] = s1.split("\t");
-                if(t.length == 3 && set.add(t[0]))
-                {
-                    count++;
+                    S.add(s1);
                     s = s + s1 + "\n";
-                }
-                else
-                {
-                    ErrorDialog dia = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
-                    PropertyManager manager  = applicationTemplate.manager;
-                    String          errTitle = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_TITLE.name());
-                    String message = "Error on line " + (count + 1) + " in " + manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name());
-                    dia.show(errTitle, message);
-                }
+                 count++;
             }
+            checkValid(s);
             processor.processString(s);
             AppUI a = (AppUI)(applicationTemplate.getUIComponent());
+            s = "";
+            for(int i = 0; i < 10; i++)
+            {
+                String q = S.get(i);
+                s = s + q + "\n";
+            }
             a.setText(s);
+            a.setChange(S);
             a.setReadOnly(true);
-            a.setRowCount(10);
+
 
             ErrorDialog c = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
             int cc;
@@ -86,9 +84,42 @@ public class AppData implements DataComponent {
             String          errTitle = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_TITLE.name());
             String          errMsg   = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_MSG.name());
             String          errInput = manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name());
-            dialog.show(errTitle, errMsg + errInput);
+            String message = "Error on line " + (count + 1) + " in " + manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name()) + "\n\"" + e.getMessage() + "\"";
+            dialog.show(errTitle, errMsg + errInput + "\n" + message);
         }
         // TODO: NOT A PART OF HW 1
+    }
+
+    public boolean checkValid(String text)
+    {
+        ArrayList<Integer> a = new ArrayList<>();
+        AtomicBoolean b = new AtomicBoolean();
+        SortedSet<String> g = new TreeSet<>();
+        b.set(true);
+        Stream.of(text.split("\n"))
+                .map(line -> Arrays.asList(line.split("\t")))
+                .forEach(list -> {
+                    try {
+
+                        if(!(list.get(0).startsWith("@")) || !(g.add(list.get(0))))
+                        {
+                            throw new Exception("Invalid/Repeated name: " + list.get(0) + ".");
+                        }
+                        String[] pair  = list.get(2).split(",");
+                        int i = Integer.parseInt(pair[0]);
+                        int j = Integer.parseInt(pair[1]);
+                        a.add(0);
+                    } catch (Exception e) {
+                        b.set(false);
+                        ErrorDialog     dialog   = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
+                        PropertyManager manager  = applicationTemplate.manager;
+                        String          errTitle = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_TITLE.name());
+                        String          errMsg   = "Data in text area is not valid. ";
+                        String          errInput = "Error on line " + (a.size() + 1) + ". " + e.getMessage();
+                        dialog.show(errTitle, errMsg + errInput);
+                    }
+                });
+        return b.get();
     }
 
     public void loadData(String dataString) {
