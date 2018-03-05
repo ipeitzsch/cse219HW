@@ -56,6 +56,7 @@ public final class AppUI extends UITemplate {
     public void setSaveDisable(boolean b){ saveButton.setDisable(b);}
     public void setNewDisable(boolean b) { newButton.setDisable(b);}
     public void setScreenShotDisable(boolean b) { scrnshotButton.setDisable(b);}
+
     public void setText(String s) {textArea.setText(s); }
     public void setChange(ArrayList<String> s)
     {
@@ -63,19 +64,18 @@ public final class AppUI extends UITemplate {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 String t[] = newValue.split("\n");
-                for(int i = 0; i < t.length; i++)
-                {
-                    if(!s.get(i).equals(t[i]))
-                    {
-                        s.remove(i);
+                if(t.length < 10) {
+                    for (int i = 0; i < t.length; i++) {
+                        if (!s.get(i).equals(t[i])) {
+                            s.remove(i);
+                        }
                     }
+                    String h = "";
+                    for (int i = 0; i < 10 || i < s.size(); i++) {
+                        h = h + s.get(i) + "\n";
+                    }
+                    textArea.setText(h);
                 }
-                String h = "";
-                for(int i = 0; i < 10 || i < s.size(); i++)
-                {
-                    h = h + s.get(i) + "\n";
-                }
-                textArea.setText(h);
             }
         });
     }
