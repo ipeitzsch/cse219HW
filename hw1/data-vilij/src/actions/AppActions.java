@@ -74,12 +74,12 @@ public final class AppActions implements ActionComponent {
         ArrayList<Integer> a = new ArrayList<>();
         AtomicBoolean b = new AtomicBoolean();
         SortedSet<String> g = new TreeSet<>();
-        b.set(true);
+
         Stream.of(text.split("\n"))
                 .map(line -> Arrays.asList(line.split("\t")))
                 .forEach(list -> {
                     try {
-
+                        b.set(true);
                         if(!(list.get(0).startsWith("@")) || !(g.add(list.get(0))))
                         {
                             throw new Exception("Invalid/Repeated name: " + list.get(0) + ".");
@@ -89,13 +89,14 @@ public final class AppActions implements ActionComponent {
                         int j = Integer.parseInt(pair[1]);
                         a.add(0);
                     } catch (Exception e) {
-                        b.set(false);
+
                         ErrorDialog     dialog   = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
                         PropertyManager manager  = applicationTemplate.manager;
                         String          errTitle = manager.getPropertyValue(PropertyTypes.SAVE_ERROR_TITLE.name());
                         String          errMsg   = "Data in text area is not valid. ";
                         String          errInput = "Error on line " + (a.size() + 1) + ". " + e.getMessage();
                         dialog.show(errTitle, errMsg + errInput);
+                        b.set(false);
                     }
                 });
         return b.get();
@@ -104,6 +105,8 @@ public final class AppActions implements ActionComponent {
     public void handleSaveRequest() {
 
         PropertyManager    manager = applicationTemplate.manager;
+        if(!(checkValid(((AppUI) applicationTemplate.getUIComponent()).getCurrentText())))
+            return;
         if(dataFilePath == null)
         {
             FileChooser fileChooser = new FileChooser();
@@ -123,7 +126,7 @@ public final class AppActions implements ActionComponent {
 
             fileChooser.getExtensionFilters().add(extFilter);
             File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
-            if (selected != null && checkValid(((AppUI) applicationTemplate.getUIComponent()).getCurrentText())) {
+            if (selected != null) {
                 dataFilePath = selected.toPath();
                 try {
                     save();
