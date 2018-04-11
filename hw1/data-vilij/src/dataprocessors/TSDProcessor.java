@@ -5,7 +5,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.StackPane;
+
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,10 +34,14 @@ public final class TSDProcessor {
 
     private Map<String, String>  dataLabels;
     private Map<String, Point2D> dataPoints;
+    private Set<String> labels;
+
 
     public TSDProcessor() {
         dataLabels = new HashMap<>();
         dataPoints = new HashMap<>();
+        labels = new HashSet<>();
+
     }
 
     /**
@@ -47,6 +51,7 @@ public final class TSDProcessor {
      * @throws Exception if the input string does not follow the <code>.tsd</code> data format
      */
     public void processString(String tsdString) throws Exception {
+
         AtomicBoolean hadAnError   = new AtomicBoolean(false);
         StringBuilder errorMessage = new StringBuilder();
         Stream.of(tsdString.split("\n"))
@@ -59,6 +64,7 @@ public final class TSDProcessor {
                       Point2D  point = new Point2D(Double.parseDouble(pair[0]), Double.parseDouble(pair[1]));
                       dataLabels.put(name, label);
                       dataPoints.put(name, point);
+                      labels.add(label);
                   } catch (Exception e) {
                       errorMessage.setLength(0);
                       errorMessage.append(e.getClass().getSimpleName()).append(": ").append(e.getMessage());
@@ -67,6 +73,11 @@ public final class TSDProcessor {
               });
         if (errorMessage.length() > 0)
             throw new Exception(errorMessage.toString());
+    }
+
+    public int getNumLabels()
+    {
+        return labels.size();
     }
 
     /**
@@ -96,7 +107,7 @@ public final class TSDProcessor {
             count++;
         }
         setTooltip(chart);
-        average(chart);
+
         Set<Node>  n = chart.lookupAll(".series" + count);
         for(Node x : n)
         {
@@ -129,63 +140,5 @@ public final class TSDProcessor {
             }
         }
     }
-    private void average(XYChart<Number, Number> chart)
-    {
-        ObservableList<XYChart.Series<Number,Number>> a = chart.getData();
-        double total = 0;
-        double s = 0;
-        ArrayList<Double> maxes = new ArrayList<Double>();
-        ArrayList<Double> mins = new ArrayList<Double>();
-        for(XYChart.Series<Number, Number> ser : a)
-        {
-            ObservableList<XYChart.Data<Number,Number>> o = ser.getData();
-            double max = (Double)o.get(0).getXValue();
-            double min = (Double)o.get(0).getXValue();
-            for(XYChart.Data<Number,Number> c : o)
-            {
-                total += (Double)c.getYValue();
-                s++;
-                if(max < (Double)c.getXValue())
-                {
-                    max = (Double) c.getXValue();
-                }
-                if(min > (Double)c.getXValue())
-                {
-                    min = (Double)c.getXValue();
-                }
-            }
-            maxes.add(max);
-            mins.add(min);
-        }
-        XYChart.Series<Number, Number> x = new XYChart.Series<>();
-        x.getData().add(new XYChart.Data<>(getmin(mins), total / s));
-        x.getData().add(new XYChart.Data<>(getmax(maxes), total / s));
-        x.setName("AVERAGE");
-        chart.getData().add(x);
-    }
 
-    private double getmax(ArrayList<Double> a)
-    {
-        double m = a.get(0);
-        for(int i = 1; i < a.size(); i++)
-        {
-            if(m < a.get(i))
-            {
-                m = a.get(i);
-            }
-        }
-        return m;
-    }
-    private double getmin(ArrayList<Double> a)
-    {
-        double m = a.get(0);
-        for(int i = 1; i < a.size(); i++)
-        {
-            if(m > a.get(i))
-            {
-                m = a.get(i);
-            }
-        }
-        return m;
-    }
 }

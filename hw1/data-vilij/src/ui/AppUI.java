@@ -6,14 +6,12 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -45,7 +43,10 @@ public final class AppUI extends UITemplate {
     private TextArea                     textArea;       // text area for new data input
     private boolean                      hasNewText;     // whether or not the text area has any new data since last display
     private Button                       readOnly;
-
+    private Button                       classifier;
+    private Button                       cluster;
+    private VBox                         algPane;
+    private VBox                         leftPanel;
 
     public LineChart<Number, Number> getChart() { return chart; }
 
@@ -56,7 +57,7 @@ public final class AppUI extends UITemplate {
     public void setSaveDisable(boolean b){ saveButton.setDisable(b);}
     public void setNewDisable(boolean b) { newButton.setDisable(b);}
     public void setScreenShotDisable(boolean b) { scrnshotButton.setDisable(b);}
-
+    public Scene getScene() {return primaryScene;}
     public void setText(String s) {textArea.setText(s); }
     public void setChange(ArrayList<String> s)
     {
@@ -79,10 +80,23 @@ public final class AppUI extends UITemplate {
             }
         });
     }
-
+    public void setAlgPane(VBox alg)
+    {
+        leftPanel.getChildren().remove(algPane);
+        algPane = alg;
+        leftPanel.getChildren().add(algPane);
+    }
     public void setReadOnly(boolean b)
     {
         textArea.setDisable(b);
+    }
+    public void setClassifierDisable(boolean b)
+    {
+        classifier.setDisable(b);
+    }
+    public void setClusterDisable(boolean b)
+    {
+        cluster.setDisable(b);
     }
     @Override
     protected void setResourcePaths(ApplicationTemplate applicationTemplate) {
@@ -110,7 +124,20 @@ public final class AppUI extends UITemplate {
         applicationTemplate.setActionComponent(new AppActions(applicationTemplate));
         newButton.setOnAction(e -> applicationTemplate.getActionComponent().handleNewRequest());
         saveButton.setOnAction(e -> applicationTemplate.getActionComponent().handleSaveRequest());
-        loadButton.setOnAction(e -> applicationTemplate.getActionComponent().handleLoadRequest());
+        loadButton.setOnAction(e -> {
+            AppData a = (AppData)(applicationTemplate.getDataComponent());
+            applicationTemplate.getActionComponent().handleLoadRequest();
+            algPane.getChildren().remove(0, algPane.getChildren().size());
+            algPane.getChildren().addAll(new Text("There are " + a.getNumLabels() + " labels."), classifier, cluster);
+            setClassifierDisable(true);
+            setClusterDisable(false);
+            if(a.getNumLabels() == 2)
+            {
+                setClassifierDisable(false);
+            }
+
+            readOnly.setText("Edit");
+        });
         exitButton.setOnAction(e -> applicationTemplate.getActionComponent().handleExitRequest());
         printButton.setOnAction(e -> applicationTemplate.getActionComponent().handlePrintRequest());
         AppActions a = (AppActions)(applicationTemplate.getActionComponent());
@@ -134,6 +161,8 @@ public final class AppUI extends UITemplate {
     public void clear() {
         textArea.clear();
         chart.getData().clear();
+        saveButton.setDisable(true);
+        newButton.setDisable(true);
     }
 
     public String getCurrentText() { return textArea.getText(); }
@@ -147,16 +176,43 @@ public final class AppUI extends UITemplate {
         chart = new LineChart<>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(AppPropertyTypes.CHART_TITLE.name()));
 
-        readOnly = new Button("Read Only");
-        readOnly.setOnAction(e -> textArea.setDisable(!textArea.isDisabled()));
+        readOnly = new Button("Done");
+        readOnly.setOnAction(e -> {
+            textArea.setDisable(!textArea.isDisabled());
+            AppData a = (AppData)(applicationTemplate.getDataComponent());
+            if(textArea.isDisabled()) {
+                a.loadData(textArea.getText());
+                algPane.getChildren().remove(0, algPane.getChildren().size());
+                algPane.getChildren().addAll(new Text("There are " + a.getNumLabels() + " labels."), classifier, cluster);
+                setClassifierDisable(true);
+                setClusterDisable(false);
+                if(a.getNumLabels() == 2)
+                {
+                    setClassifierDisable(false);
+                }
 
-        VBox leftPanel = new VBox(8);
+                readOnly.setText("Edit");
+            }
+            else
+            {
+                readOnly.setText("Done");
+                algPane.getChildren().remove(0, algPane.getChildren().size());
+                algPane.getChildren().addAll(classifier, cluster);
+                setClusterDisable(true);
+                setClassifierDisable(true);
+            }
+
+
+
+        });
+
+        leftPanel = new VBox(8);
         leftPanel.setAlignment(Pos.TOP_CENTER);
         leftPanel.setPadding(new Insets(10));
 
         VBox.setVgrow(leftPanel, Priority.ALWAYS);
-        leftPanel.setMaxSize(windowWidth * 0.29, windowHeight * 0.3);
-        leftPanel.setMinSize(windowWidth * 0.29, windowHeight * 0.3);
+        leftPanel.setMaxSize(windowWidth * 0.29, windowHeight );
+        leftPanel.setMinSize(windowWidth * 0.29, windowHeight );
 
         Text   leftPanelTitle = new Text(manager.getPropertyValue(AppPropertyTypes.LEFT_PANE_TITLE.name()));
         String fontname       = manager.getPropertyValue(AppPropertyTypes.LEFT_PANE_TITLEFONT.name());
@@ -170,7 +226,14 @@ public final class AppUI extends UITemplate {
         HBox.setHgrow(processButtonsBox, Priority.ALWAYS);
         processButtonsBox.getChildren().add(displayButton);
 
-        leftPanel.getChildren().addAll(leftPanelTitle, textArea, processButtonsBox, readOnly);
+        classifier = new Button("Classification");
+        cluster = new Button("Cluster");
+        setClusterDisable(true);
+        setClassifierDisable(true);
+        algPane = new VBox(50);
+        algPane.getChildren().addAll(classifier, cluster);
+
+        leftPanel.getChildren().addAll(leftPanelTitle, textArea, processButtonsBox, readOnly, algPane);
 
         StackPane rightPanel = new StackPane(chart);
         rightPanel.setMaxSize(windowWidth * 0.69, windowHeight * 0.69);
@@ -190,6 +253,9 @@ public final class AppUI extends UITemplate {
     private void setWorkspaceActions() {
         setTextAreaActions();
         setDisplayButtonActions();
+        AppActions a = (AppActions)(applicationTemplate.getActionComponent());
+        classifier.setOnAction(e -> a.handleClassifierRequest());
+        cluster.setOnAction(e -> a.handleClusterRequest());
     }
 
     private void setTextAreaActions() {

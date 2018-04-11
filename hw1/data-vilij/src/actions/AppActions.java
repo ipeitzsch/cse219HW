@@ -1,14 +1,30 @@
 package actions;
 
+import algorithm.Classifier;
+import algorithm.Cluster;
+import algorithm.RandomClassifier;
+import comms.AppComms;
 import dataprocessors.AppData;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.SnapshotParameters;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Stage;
 import settings.AppPropertyTypes;
 import ui.AppUI;
+import ui.ClassifDialog;
+import ui.ClusterDialog;
 import vilij.components.ActionComponent;
 import vilij.components.ConfirmationDialog;
 import vilij.components.Dialog;
@@ -23,10 +39,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
@@ -48,9 +61,15 @@ public final class AppActions implements ActionComponent {
     /** The boolean property marking whether or not there are any unsaved changes. */
     SimpleBooleanProperty isUnsaved;
 
+    private AppComms comms;
+    private ArrayList<CheckBox> boxes;
+    private String selected;
+
     public AppActions(ApplicationTemplate applicationTemplate) {
         this.applicationTemplate = applicationTemplate;
         this.isUnsaved = new SimpleBooleanProperty(false);
+        comms = new AppComms();
+        boxes = new ArrayList<>();
     }
 
     public void setIsUnsavedProperty(boolean property) { isUnsaved.set(property); }
@@ -63,9 +82,6 @@ public final class AppActions implements ActionComponent {
                 applicationTemplate.getUIComponent().clear();
                 isUnsaved.set(false);
                 dataFilePath = null;
-                AppUI a = (AppUI)(applicationTemplate.getUIComponent());
-                a.setNewDisable(true);
-                a.setSaveDisable(true);
             }
         } catch (IOException e) { errorHandlingHelper(); }
     }
@@ -163,7 +179,13 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleLoadRequest() {
         PropertyManager    manager = applicationTemplate.manager;
+        String      dataDirPath = "/" + manager.getPropertyValue(AppPropertyTypes.DATA_RESOURCE_PATH.name());
+        URL         dataDirURL  = getClass().getResource(dataDirPath);
+
         FileChooser fileChooser = new FileChooser();
+
+        fileChooser.setInitialDirectory(new File(dataDirURL.getFile()));
+        fileChooser.setTitle(manager.getPropertyValue(SAVE_WORK_TITLE.name()));
 
         String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
         String extension   = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
@@ -171,8 +193,8 @@ public final class AppActions implements ActionComponent {
                 String.format("*.%s", extension));
 
         fileChooser.getExtensionFilters().add(extFilter);
+        File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
 
-        File selected = fileChooser.showOpenDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
 
         if(selected != null)
         {
@@ -182,7 +204,7 @@ public final class AppActions implements ActionComponent {
                 b.clear();
                 dataFilePath = selected.toPath();
                 a.loadData(dataFilePath);
-                a.displayData();
+
         }
     }
 
@@ -220,6 +242,86 @@ public final class AppActions implements ActionComponent {
             a.setScreenShotDisable(true);
         }
 
+    }
+
+    public void handleClassifierRequest()
+    {
+        AppUI a = (AppUI)(applicationTemplate.getUIComponent());
+        VBox algPane = new VBox(50);
+        for(String s : comms.getClassNames()) {
+            HBox holder = new HBox(50);
+            CheckBox c = new CheckBox();
+            c.setSelected(false);
+            c.setAllowIndeterminate(false);
+            boxes.add(c);
+            c.selectedProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                    if(newValue)
+                    {
+                        for(CheckBox g : boxes)
+                        {
+                            if(g != c)
+                            {
+                                g.setSelected(false);
+                            }
+                        }
+                        selected = s;
+                    }
+                }
+            });
+            Button options = new Button("Options");
+            options.setOnAction(e -> {
+                ClassifDialog cl = new ClassifDialog(s, comms, applicationTemplate);
+
+                cl.show(s + " Options");
+            });
+            holder.getChildren().addAll(c, new Text(s), options);
+            algPane.getChildren().add(holder);
+        }
+
+        a.setAlgPane(algPane);
+    }
+
+    public void handleClusterRequest()
+    {
+        AppUI a = (AppUI)(applicationTemplate.getUIComponent());
+        VBox algPane = new VBox(50);
+        for(String s : comms.getClustNames()) {
+            HBox holder = new HBox(50);
+
+            CheckBox c = new CheckBox();
+            c.setSelected(false);
+            c.setAllowIndeterminate(false);
+            boxes.add(c);
+            c.selectedProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                    if(newValue)
+                    {
+                        for(CheckBox g : boxes)
+                        {
+                            if(g != c)
+                            {
+                                g.setSelected(false);
+                            }
+                        }
+                        selected = s;
+                    }
+                }
+            });
+
+            Button options = new Button("Options");
+            options.setOnAction(e -> {
+                ClusterDialog cl = new ClusterDialog(s, comms, applicationTemplate);
+
+                cl.show(s + " Options");
+            });
+            holder.getChildren().addAll(c, new Text(s), options);
+            algPane.getChildren().add(holder);
+        }
+
+        a.setAlgPane(algPane);
     }
 
     /**
@@ -285,4 +387,6 @@ public final class AppActions implements ActionComponent {
         String          errInput = manager.getPropertyValue(AppPropertyTypes.SPECIFIED_FILE.name());
         dialog.show(errTitle, errMsg + errInput);
     }
+
+
 }

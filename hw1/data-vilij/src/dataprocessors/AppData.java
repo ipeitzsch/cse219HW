@@ -124,7 +124,9 @@ public class AppData implements DataComponent {
 
     public void loadData(String dataString) {
         try {
-            processor.processString(dataString);
+            if(checkValid(dataString)) {
+                processor.processString(dataString);
+            }
         } catch (Exception e) {
             ErrorDialog     dialog   = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
             PropertyManager manager  = applicationTemplate.manager;
@@ -154,4 +156,10 @@ public class AppData implements DataComponent {
     public void displayData() {
         processor.toChartData(((AppUI) applicationTemplate.getUIComponent()).getChart());
     }
+
+    public int getNumLabels()
+    {
+       return processor.getNumLabels();
+    }
+
 }
