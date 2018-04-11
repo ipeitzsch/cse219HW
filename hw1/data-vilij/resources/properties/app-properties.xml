@@ -19,6 +19,8 @@ functionality within the main workspace. -->
 
         <!-- ERROR MESSAGES -->
         <property name="RESOURCE_SUBDIR_NOT_FOUND" value="Directory not found under resources."/>
+        <property name="NUM_LABELS_ERROR" value="The number of labels must be between 2 and 4."/>
+        <property name="INTEGERS_ONLY" value="Please only enter integers into fields."/>
 
         <!-- APPLICATION-SPECIFIC MESSAGE TITLES -->
         <property name="SAVE_UNSAVED_WORK_TITLE" value="Save Current Work"/>
@@ -36,7 +38,10 @@ functionality within the main workspace. -->
         <property name="LEFT_PANE_TITLESIZE" value="18"/>
         <property name="CHART_TITLE" value="Data Visualization"/>
         <property name="DISPLAY_BUTTON_TEXT" value="Display Data"/>
-
+        <property name = "MAX_ITERATIONS" value = "Maximum Iterations: "/>
+        <property name = "REFRESH" value = "Update Period: "/>
+        <property name="CONTINUOUS" value="Continuous: "/>
+        <property name="NUM_LABELS" value="Number of Labels: "/>
     </property_list>
     <property_options_list/>
 </properties>

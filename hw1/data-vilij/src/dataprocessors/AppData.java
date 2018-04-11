@@ -162,4 +162,8 @@ public class AppData implements DataComponent {
        return processor.getNumLabels();
     }
 
+    public boolean hasNull()
+    {
+        return processor.isNull();
+    }
 }

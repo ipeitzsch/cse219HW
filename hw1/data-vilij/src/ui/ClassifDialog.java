@@ -11,8 +11,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import settings.AppPropertyTypes;
 import vilij.components.Dialog;
 import vilij.components.ErrorDialog;
+import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
 
 public class ClassifDialog {
@@ -43,6 +45,7 @@ public class ClassifDialog {
 
 
     private void init() {
+        PropertyManager manager = apt.manager;
         stage.initModality(Modality.WINDOW_MODAL);
         Classifier classif = comms.getClassif(selection);
 
@@ -50,18 +53,18 @@ public class ClassifDialog {
         HBox max = new HBox(500);
         TextField maxIter = new TextField();
         maxIter.setText(classif.getMaxIterations() > 0 ? classif.getMaxIterations() + "" : "");
-        max.getChildren().addAll(new Text("Maximum Iterations: "), maxIter);
+        max.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.MAX_ITERATIONS.name())), maxIter);
 
         HBox refresh = new HBox(500);
         TextField update = new TextField();
         update.setText(classif.getUpdateInterval() > 0 ? classif.getUpdateInterval() + "" : "");
-        refresh.getChildren().addAll(new Text("Update Period: "), update);
+        refresh.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.REFRESH.name())), update);
 
         HBox cont = new HBox(500);
         CheckBox run = new CheckBox();
         run.setIndeterminate(false);
         run.setSelected(classif.tocontinue());
-        cont.getChildren().addAll(new Text("Continuous: "), run);
+        cont.getChildren().addAll(new Text(AppPropertyTypes.CONTINUOUS.name()), run);
 
         Button done = new Button("Done");
         done.setOnAction(e -> {
@@ -72,7 +75,7 @@ public class ClassifDialog {
             catch(Exception xe)
             {
                 ErrorDialog er = (ErrorDialog)(apt.getDialog(Dialog.DialogType.ERROR));
-                er.show("Error", "Please only enter integers into fields.");
+                er.show("Error", manager.getPropertyValue(AppPropertyTypes.INTEGERS_ONLY.name()));
             }
         });
 

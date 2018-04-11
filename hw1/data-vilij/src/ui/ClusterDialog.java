@@ -12,8 +12,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import settings.AppPropertyTypes;
 import vilij.components.Dialog;
 import vilij.components.ErrorDialog;
+import vilij.propertymanager.PropertyManager;
 import vilij.templates.ApplicationTemplate;
 
 public class ClusterDialog {
@@ -44,6 +46,8 @@ public class ClusterDialog {
 
 
     private void init() {
+        PropertyManager manager = apt.manager;
+
         stage.initModality(Modality.WINDOW_MODAL);
         Cluster cluster = comms.getClust(selection);
 
@@ -51,23 +55,23 @@ public class ClusterDialog {
         HBox max = new HBox(500);
         TextField maxIter = new TextField();
         maxIter.setText(cluster.getMaxIterations() > 0 ? cluster.getMaxIterations() + "" : "");
-        max.getChildren().addAll(new Text("Maximum Iterations: "), maxIter);
+        max.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.MAX_ITERATIONS.name())), maxIter);
 
         HBox refresh = new HBox(500);
         TextField update = new TextField();
         update.setText(cluster.getUpdateInterval() > 0 ? cluster.getUpdateInterval() + "" : "");
-        refresh.getChildren().addAll(new Text("Update Period: "), update);
+        refresh.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.REFRESH.name())), update);
 
         HBox labels = new HBox(500);
         TextField num = new TextField();
         num.setText(cluster.getNumLabels() > 0 ? cluster.getUpdateInterval() + "" : "");
-        labels.getChildren().addAll(new Text("Number of Labels: "), num);
+        labels.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.NUM_LABELS.name())), num);
 
         HBox cont = new HBox(500);
         CheckBox run = new CheckBox();
         run.setIndeterminate(false);
         run.setSelected(cluster.tocontinue());
-        cont.getChildren().addAll(new Text("Continuous: "), run);
+        cont.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.CONTINUOUS.name())), run);
 
         Button done = new Button("Done");
         done.setOnAction(e -> {
@@ -80,13 +84,13 @@ public class ClusterDialog {
                 else
                 {
                     ErrorDialog er = (ErrorDialog)(apt.getDialog(Dialog.DialogType.ERROR));
-                    er.show("Error", "The number of labels must be between 2 and 4.");
+                    er.show("Error", manager.getPropertyValue(AppPropertyTypes.NUM_LABELS_ERROR.name()));
                 }
             }
             catch(Exception xe)
             {
                 ErrorDialog er = (ErrorDialog)(apt.getDialog(Dialog.DialogType.ERROR));
-                er.show("Error", "Please only enter integers into fields.");
+                er.show("Error", manager.getPropertyValue(AppPropertyTypes.INTEGERS_ONLY.name()));
             }
         });
 

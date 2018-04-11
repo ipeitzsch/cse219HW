@@ -186,7 +186,7 @@ public final class AppUI extends UITemplate {
                 algPane.getChildren().addAll(new Text("There are " + a.getNumLabels() + " labels."), classifier, cluster);
                 setClassifierDisable(true);
                 setClusterDisable(false);
-                if(a.getNumLabels() == 2)
+                if(a.getNumLabels() == 2 && !(a.hasNull()))
                 {
                     setClassifierDisable(false);
                 }

@@ -35,13 +35,13 @@ public final class TSDProcessor {
     private Map<String, String>  dataLabels;
     private Map<String, Point2D> dataPoints;
     private Set<String> labels;
-
+    private AtomicBoolean hasNull;
 
     public TSDProcessor() {
         dataLabels = new HashMap<>();
         dataPoints = new HashMap<>();
         labels = new HashSet<>();
-
+        hasNull = new AtomicBoolean();
     }
 
     /**
@@ -51,7 +51,7 @@ public final class TSDProcessor {
      * @throws Exception if the input string does not follow the <code>.tsd</code> data format
      */
     public void processString(String tsdString) throws Exception {
-
+        hasNull.set(false);
         AtomicBoolean hadAnError   = new AtomicBoolean(false);
         StringBuilder errorMessage = new StringBuilder();
         Stream.of(tsdString.split("\n"))
@@ -64,7 +64,13 @@ public final class TSDProcessor {
                       Point2D  point = new Point2D(Double.parseDouble(pair[0]), Double.parseDouble(pair[1]));
                       dataLabels.put(name, label);
                       dataPoints.put(name, point);
-                      labels.add(label);
+                      if(label.equals("null"))
+                      {
+                          hasNull.set(true);
+                      }
+                      else {
+                          labels.add(label);
+                      }
                   } catch (Exception e) {
                       errorMessage.setLength(0);
                       errorMessage.append(e.getClass().getSimpleName()).append(": ").append(e.getMessage());
@@ -80,6 +86,10 @@ public final class TSDProcessor {
         return labels.size();
     }
 
+    public boolean isNull()
+    {
+        return hasNull.get();
+    }
     /**
      * Exports the data to the specified 2-D chart.
      *
