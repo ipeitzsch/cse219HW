@@ -175,6 +175,7 @@ public final class AppUI extends UITemplate {
 
         chart = new LineChart<>(xAxis, yAxis);
         chart.setTitle(manager.getPropertyValue(AppPropertyTypes.CHART_TITLE.name()));
+        chart.setAnimated(false);
 
         readOnly = new Button("Done");
         readOnly.setOnAction(e -> {
@@ -221,19 +222,27 @@ public final class AppUI extends UITemplate {
 
         textArea = new TextArea();
 
-        HBox processButtonsBox = new HBox();
-        displayButton = new Button(manager.getPropertyValue(AppPropertyTypes.DISPLAY_BUTTON_TEXT.name()));
+        HBox processButtonsBox = new HBox(8);
+
+        String iconsPath = SEPARATOR + String.join(SEPARATOR,
+                manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
+                manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
+        String runPath = String.join(SEPARATOR,
+                iconsPath,
+                manager.getPropertyValue(AppPropertyTypes.RUN_ICON.name()));
+        displayButton = setToolbarButton(runPath, manager.getPropertyValue(AppPropertyTypes.RUN_TOOLTIP.name()), false);
+
         HBox.setHgrow(processButtonsBox, Priority.ALWAYS);
-        processButtonsBox.getChildren().add(displayButton);
+        processButtonsBox.getChildren().addAll(displayButton, readOnly);
 
         classifier = new Button("Classification");
         cluster = new Button("Cluster");
         setClusterDisable(true);
         setClassifierDisable(true);
-        algPane = new VBox(50);
+        algPane = new VBox(8);
         algPane.getChildren().addAll(classifier, cluster);
 
-        leftPanel.getChildren().addAll(leftPanelTitle, textArea, processButtonsBox, readOnly, algPane);
+        leftPanel.getChildren().addAll(leftPanelTitle, textArea, processButtonsBox, algPane);
 
         StackPane rightPanel = new StackPane(chart);
         rightPanel.setMaxSize(windowWidth * 0.69, windowHeight * 0.69);
@@ -247,7 +256,7 @@ public final class AppUI extends UITemplate {
         VBox.setVgrow(appPane, Priority.ALWAYS);
         AppUI a = (AppUI)(applicationTemplate.getUIComponent()) ;
 
-       primaryScene.getStylesheets().add(AppUI.class.getResource("chart.css").toExternalForm());
+        primaryScene.getStylesheets().add(AppUI.class.getResource("chart.css").toExternalForm());
     }
 
     private void setWorkspaceActions() {

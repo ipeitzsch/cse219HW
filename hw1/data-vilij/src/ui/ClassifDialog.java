@@ -64,7 +64,7 @@ public class ClassifDialog {
         CheckBox run = new CheckBox();
         run.setIndeterminate(false);
         run.setSelected(classif.tocontinue());
-        cont.getChildren().addAll(new Text(AppPropertyTypes.CONTINUOUS.name()), run);
+        cont.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.CONTINUOUS.name())), run);
 
         Button done = new Button("Done");
         done.setOnAction(e -> {

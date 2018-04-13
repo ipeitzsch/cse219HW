@@ -14,7 +14,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -43,6 +45,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
+import static javafx.scene.input.KeyCode.SEPARATOR;
+import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
+import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.SAVE_WORK_TITLE;
 
 /**
@@ -246,10 +251,17 @@ public final class AppActions implements ActionComponent {
 
     public void handleClassifierRequest()
     {
+        PropertyManager manager = applicationTemplate.manager;
+        String iconsPath = "/" + String.join("/",
+                manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
+                manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
+        String optionsPath = String.join("/",
+                iconsPath,
+                manager.getPropertyValue(AppPropertyTypes.OPTIONS_ICON.name()));
         AppUI a = (AppUI)(applicationTemplate.getUIComponent());
-        VBox algPane = new VBox(50);
+        VBox algPane = new VBox(8);
         for(String s : comms.getClassNames()) {
-            HBox holder = new HBox(50);
+            HBox holder = new HBox(8);
             CheckBox c = new CheckBox();
             c.setSelected(false);
             c.setAllowIndeterminate(false);
@@ -270,7 +282,8 @@ public final class AppActions implements ActionComponent {
                     }
                 }
             });
-            Button options = new Button("Options");
+            Button options = new Button(null, new ImageView(new Image(getClass().getResourceAsStream(optionsPath))));
+            options.setTooltip(new Tooltip(manager.getPropertyValue(AppPropertyTypes.OPTIONS_TOOLTIP.name())));
             options.setOnAction(e -> {
                 ClassifDialog cl = new ClassifDialog(s, comms, applicationTemplate);
 
@@ -285,10 +298,17 @@ public final class AppActions implements ActionComponent {
 
     public void handleClusterRequest()
     {
+        PropertyManager manager = applicationTemplate.manager;
+        String iconsPath = "/" + String.join("/",
+                manager.getPropertyValue(GUI_RESOURCE_PATH.name()),
+                manager.getPropertyValue(ICONS_RESOURCE_PATH.name()));
+        String optionsPath = String.join("/",
+                iconsPath,
+                manager.getPropertyValue(AppPropertyTypes.OPTIONS_ICON.name()));
         AppUI a = (AppUI)(applicationTemplate.getUIComponent());
-        VBox algPane = new VBox(50);
+        VBox algPane = new VBox(8);
         for(String s : comms.getClustNames()) {
-            HBox holder = new HBox(50);
+            HBox holder = new HBox(8);
 
             CheckBox c = new CheckBox();
             c.setSelected(false);
@@ -311,7 +331,8 @@ public final class AppActions implements ActionComponent {
                 }
             });
 
-            Button options = new Button("Options");
+            Button options = new Button(null, new ImageView(new Image(getClass().getResourceAsStream(optionsPath))));
+            options.setTooltip(new Tooltip(manager.getPropertyValue(AppPropertyTypes.OPTIONS_TOOLTIP.name())));
             options.setOnAction(e -> {
                 ClusterDialog cl = new ClusterDialog(s, comms, applicationTemplate);
 

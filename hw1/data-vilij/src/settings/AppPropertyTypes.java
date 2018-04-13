@@ -42,5 +42,9 @@ public enum AppPropertyTypes {
     CONTINUOUS,
     NUM_LABELS,
     NUM_LABELS_ERROR,
-    INTEGERS_ONLY;
+    INTEGERS_ONLY,
+    RUN_ICON,
+    RUN_TOOLTIP,
+    OPTIONS_TOOLTIP,
+    OPTIONS_ICON;
 }
