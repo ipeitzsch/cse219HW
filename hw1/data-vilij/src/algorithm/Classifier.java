@@ -1,5 +1,9 @@
 package algorithm;
 
+import dataprocessors.ClassProcessor;
+import dataprocessors.DataSet;
+import vilij.templates.ApplicationTemplate;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,11 +25,12 @@ public abstract class Classifier implements Algorithm {
      * See 3.4.4 of the SRS.
      */
     protected List<Integer> output;
-
+    protected ApplicationTemplate applicationTemplate;
     public List<Integer> getOutput() { return output; }
     protected int maxIterations;
     protected int updateInterval;
-
+    protected DataSet dataset;
+    protected ClassProcessor cp;
     // currently, this value does not change after instantiation
     protected AtomicBoolean tocontinue;
 
@@ -59,5 +64,9 @@ public abstract class Classifier implements Algorithm {
     public void setToContinue(boolean b)
     {
         tocontinue.set(b);
+    }
+    public void setCP(ClassProcessor c)
+    {
+        cp = c;
     }
 }

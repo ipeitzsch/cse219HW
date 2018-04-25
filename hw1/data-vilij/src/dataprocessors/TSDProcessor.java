@@ -1,5 +1,6 @@
 package dataprocessors;
 
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -36,7 +37,9 @@ public final class TSDProcessor {
     private Map<String, Point2D> dataPoints;
     private Set<String> labels;
     private AtomicBoolean hasNull;
-
+    private double min;
+    private double max;
+    private XYChart.Series<Number, Number> l;
     public TSDProcessor() {
         dataLabels = new HashMap<>();
         dataPoints = new HashMap<>();
@@ -108,22 +111,20 @@ public final class TSDProcessor {
 
 
             });
+
             chart.getData().add(series);
-            Set<Node>  n = chart.lookupAll(".series"  + count);
+
+            Set<Node>  n = chart.lookupAll(".series"  + (count - 1));
             for(Node x : n)
             {
+
                 x.setStyle("-fx-stroke: none;");
             }
             count++;
         }
         setTooltip(chart);
 
-        Set<Node>  n = chart.lookupAll(".series" + count);
-        for(Node x : n)
-        {
-            x.setStyle("-fx-shape: \"M0,0 L2,0 L4,0 L7,0 L9,0 L4,0 Z\";");
 
-        }
 
     }
 
@@ -139,16 +140,45 @@ public final class TSDProcessor {
     }
     private void setTooltip(XYChart<Number, Number> chart)
     {
+        boolean flag = true;
         ObservableList<XYChart.Series<Number,Number>> a = chart.getData();
         for(XYChart.Series<Number, Number> ser : a)
         {
             ObservableList<XYChart.Data<Number,Number>> o = ser.getData();
             for(XYChart.Data<Number,Number> c : o)
             {
+                if(flag)
+                {
+                    min = (Double)c.getXValue();
+                    max = (Double)c.getXValue();
+                    flag = false;
+                }
+                else if(min > (Double)c.getXValue())
+                {
+                    min = (Double)c.getXValue();
+                }
+                else if(max < (Double)c.getXValue())
+                {
+                    max = (Double)c.getXValue();
+                }
                 Tooltip t = new Tooltip(c.getExtraValue().toString());
                 Tooltip.install(c.getNode(), t);
             }
         }
+    }
+
+    public void handleLine(List<Integer> line, XYChart<Number, Number> chart, String text) throws Exception {
+        this.clear();
+        this.processString(text);
+        double y1 = -1 * ( (double)(line.get(0)) / (double)(line.get(1)) ) * min + ( (double)(-line.get(2)) / (double)(line.get(1)));
+        double y2 = -1 * ( (double)(line.get(0)) / (double)(line.get(1)) ) * max + ( (double)(-line.get(2)) / (double)(line.get(1)));
+        dataPoints.put("l1", new Point2D(min, y1));
+        dataPoints.put("l2", new Point2D(max, y2));
+        dataLabels.put("l1", "LINE");
+        dataLabels.put("l2", "LINE");
+        this.toChartData(chart);
+
+        System.out.println("\t\t\t***** LINE *****");
     }
 
 }

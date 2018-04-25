@@ -1,5 +1,7 @@
 package algorithm;
 
+import vilij.templates.ApplicationTemplate;
+
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -11,7 +13,7 @@ public abstract class Cluster implements Algorithm{
      * See 3.4.4 of the SRS.
      */
     protected List<Integer> output;
-
+    protected ApplicationTemplate applicationTemplate;
     public List<Integer> getOutput() { return output; }
     protected int maxIterations;
     protected int updateInterval;
@@ -58,5 +60,6 @@ public abstract class Cluster implements Algorithm{
     {
         numLabels = i;
     }
+    public void setApplicationTemplate(ApplicationTemplate a) { applicationTemplate = a; }
 
 }

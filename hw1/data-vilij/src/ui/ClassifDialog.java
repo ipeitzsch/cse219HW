@@ -69,7 +69,7 @@ public class ClassifDialog {
         Button done = new Button("Done");
         done.setOnAction(e -> {
             try{
-                comms.setClasssif(selection, Integer.parseInt(maxIter.getText()), Integer.parseInt(update.getText()), run.isSelected());
+                comms.setClasssif(selection, Integer.parseInt(maxIter.getText()), Integer.parseInt(update.getText()), run.isSelected(), this.apt);
                 stage.close();
             }
             catch(Exception xe)

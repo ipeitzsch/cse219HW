@@ -78,7 +78,7 @@ public class ClusterDialog {
 
             try{
                 if(Integer.parseInt(num.getText()) >= 2 || Integer.parseInt(num.getText()) <= 4) {
-                    comms.setClust(selection, Integer.parseInt(maxIter.getText()), Integer.parseInt(update.getText()), run.isSelected(), Integer.parseInt(num.getText()));
+                    comms.setClust(selection, Integer.parseInt(maxIter.getText()), Integer.parseInt(update.getText()), run.isSelected(), Integer.parseInt(num.getText()), apt);
                     stage.close();
                 }
                 else

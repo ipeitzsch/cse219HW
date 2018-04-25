@@ -1,10 +1,9 @@
 package actions;
 
 import algorithm.Classifier;
-import algorithm.Cluster;
-import algorithm.RandomClassifier;
 import comms.AppComms;
 import dataprocessors.AppData;
+import dataprocessors.ClassProcessor;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -13,7 +12,6 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 
-import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -22,7 +20,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Stage;
 import settings.AppPropertyTypes;
 import ui.AppUI;
 import ui.ClassifDialog;
@@ -45,7 +42,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
 
-import static javafx.scene.input.KeyCode.SEPARATOR;
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.ICONS_RESOURCE_PATH;
 import static vilij.settings.PropertyTypes.SAVE_WORK_TITLE;
@@ -69,7 +65,7 @@ public final class AppActions implements ActionComponent {
     private AppComms comms;
     private ArrayList<CheckBox> boxes;
     private String selected;
-
+    private boolean classif;
     public AppActions(ApplicationTemplate applicationTemplate) {
         this.applicationTemplate = applicationTemplate;
         this.isUnsaved = new SimpleBooleanProperty(false);
@@ -121,6 +117,18 @@ public final class AppActions implements ActionComponent {
                     }
                 });
         return b.get();
+    }
+    public void handleDisplayRequest(){
+            if(selected != null && classif)
+            {
+                Classifier c = comms.getClassif(selected);
+                AppUI a = (AppUI)applicationTemplate.getUIComponent();
+                AppData ap = (AppData)applicationTemplate.getDataComponent();
+                ClassProcessor cp = new ClassProcessor(a.getChart(), ap);
+                c.setCP(cp);
+                c.run();
+            }
+
     }
     @Override
     public void handleSaveRequest() {
@@ -294,6 +302,7 @@ public final class AppActions implements ActionComponent {
         }
 
         a.setAlgPane(algPane);
+        classif = true;
     }
 
     public void handleClusterRequest()
@@ -343,6 +352,7 @@ public final class AppActions implements ActionComponent {
         }
 
         a.setAlgPane(algPane);
+        classif = false;
     }
 
     /**

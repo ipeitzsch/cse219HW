@@ -1,11 +1,13 @@
 package dataprocessors;
 
 import javafx.geometry.Point2D;
+import vilij.templates.ApplicationTemplate;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -45,11 +47,12 @@ public class DataSet {
 
     private Map<String, String>  labels;
     private Map<String, Point2D> locations;
-
+    private AppData data;
     /** Creates an empty dataset. */
     public DataSet() {
         labels = new HashMap<>();
         locations = new HashMap<>();
+
     }
 
     public Map<String, String> getLabels()     { return labels; }
@@ -68,15 +71,6 @@ public class DataSet {
         locations.put(arr[0], locationOf(arr[2]));
     }
 
-    public static DataSet fromTSDFile(Path tsdFilePath) throws IOException {
-        DataSet dataset = new DataSet();
-        Files.lines(tsdFilePath).forEach(line -> {
-            try {
-                dataset.addInstance(line);
-            } catch (InvalidDataNameException e) {
-                e.printStackTrace();
-            }
-        });
-        return dataset;
-    }
+
+
 }

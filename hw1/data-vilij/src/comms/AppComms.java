@@ -4,6 +4,7 @@ import algorithm.Classifier;
 import algorithm.Clus;
 import algorithm.Cluster;
 import algorithm.RandomClassifier;
+import vilij.templates.ApplicationTemplate;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -37,21 +38,23 @@ public class AppComms {
     {
         return clusters.get(s);
     }
-    public void setClasssif(String name, int max, int refresh, boolean cont)
+    public void setClasssif(String name, int max, int refresh, boolean cont, ApplicationTemplate a)
     {
         Classifier c = classifiers.get(name);
         c.setMax(max);
         c.setUpdate(refresh);
         c.setToContinue(cont);
+
         classifiers.put(name, c);
     }
-    public void setClust(String name, int max, int refresh, boolean cont, int num)
+    public void setClust(String name, int max, int refresh, boolean cont, int num, ApplicationTemplate a)
     {
         Cluster c = clusters.get(name);
         c.setMax(max);
         c.setUpdate(refresh);
         c.setToContinue(cont);
         c.setNumLabels(num);
+        c.setApplicationTemplate(a);
         clusters.put(name, c);
     }
 }

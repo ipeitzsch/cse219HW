@@ -292,13 +292,16 @@ public final class AppUI extends UITemplate {
                     dataComponent.clear();
                     dataComponent.loadData(textArea.getText());
                     dataComponent.displayData();
+                    AppActions a = (AppActions)applicationTemplate.getActionComponent();
+                    a.handleDisplayRequest();
                     scrnshotButton.setDisable(false);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
 
             }
-        });
+
+    });
     }
 
 
