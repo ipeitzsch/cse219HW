@@ -56,6 +56,8 @@ public final class AppUI extends UITemplate {
     }
     public void setSaveDisable(boolean b){ saveButton.setDisable(b);}
     public void setNewDisable(boolean b) { newButton.setDisable(b);}
+    public void disableDisp(boolean b) {displayButton.setDisable(b);}
+    public void disableScrn(boolean b) { scrnshotButton.setDisable(b);}
     public void setScreenShotDisable(boolean b) { scrnshotButton.setDisable(b);}
     public Scene getScene() {return primaryScene;}
     public void setText(String s) {textArea.setText(s); }
@@ -182,9 +184,10 @@ public final class AppUI extends UITemplate {
             textArea.setDisable(!textArea.isDisabled());
             AppData a = (AppData)(applicationTemplate.getDataComponent());
             if(textArea.isDisabled()) {
+                a.clear();
                 a.loadData(textArea.getText());
                 algPane.getChildren().remove(0, algPane.getChildren().size());
-                algPane.getChildren().addAll(new Text("There are " + a.getNumLabels() + " labels."), classifier, cluster);
+                algPane.getChildren().addAll(new Text("There are " + a.getNumLabels() + " labels."), new Text("There are " + a.getNumPoints() + " instances."), classifier, cluster);
                 setClassifierDisable(true);
                 setClusterDisable(false);
                 if(a.getNumLabels() == 2 && !(a.hasNull()))

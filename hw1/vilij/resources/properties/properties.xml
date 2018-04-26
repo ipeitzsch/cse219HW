@@ -46,6 +46,7 @@ functionality within the main workspace. -->
         <!-- STANDARD LABELS AND TITLES -->
         <property name="CLOSE_LABEL" value="Close"/>
         <property name="SAVE_WORK_TITLE" value="Save"/>
+
     </property_list>
     <property_options_list/>
 </properties>

@@ -8,6 +8,7 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Tooltip;
 
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
@@ -39,12 +40,13 @@ public final class TSDProcessor {
     private AtomicBoolean hasNull;
     private double min;
     private double max;
-    private XYChart.Series<Number, Number> l;
+    private List<XYChart.Series<Number, Number>>l;
     public TSDProcessor() {
         dataLabels = new HashMap<>();
         dataPoints = new HashMap<>();
         labels = new HashSet<>();
         hasNull = new AtomicBoolean();
+        l = new ArrayList<>();
     }
 
     /**
@@ -88,7 +90,7 @@ public final class TSDProcessor {
     {
         return labels.size();
     }
-
+    public int getNumInstances() { return dataPoints.size(); }
     public boolean isNull()
     {
         return hasNull.get();
@@ -114,7 +116,7 @@ public final class TSDProcessor {
 
             chart.getData().add(series);
 
-            Set<Node>  n = chart.lookupAll(".series"  + (count - 1));
+            Set<Node>  n = chart.lookupAll(".series"  + (count));
             for(Node x : n)
             {
 
@@ -131,6 +133,8 @@ public final class TSDProcessor {
     void clear() {
         dataPoints.clear();
         dataLabels.clear();
+        labels.clear();
+        l.clear();
     }
 
     private String checkedname(String name) throws InvalidDataNameException {
@@ -167,18 +171,35 @@ public final class TSDProcessor {
         }
     }
 
-    public void handleLine(List<Integer> line, XYChart<Number, Number> chart, String text) throws Exception {
-        this.clear();
-        this.processString(text);
-        double y1 = -1 * ( (double)(line.get(0)) / (double)(line.get(1)) ) * min + ( (double)(-line.get(2)) / (double)(line.get(1)));
-        double y2 = -1 * ( (double)(line.get(0)) / (double)(line.get(1)) ) * max + ( (double)(-line.get(2)) / (double)(line.get(1)));
-        dataPoints.put("l1", new Point2D(min, y1));
-        dataPoints.put("l2", new Point2D(max, y2));
-        dataLabels.put("l1", "LINE");
-        dataLabels.put("l2", "LINE");
-        this.toChartData(chart);
+    public void handleLine(List<Integer> line, XYChart<Number, Number> chart) {
+        double a = line.get(0);
+        double b = line.get(1);
+        double c = line.get(2);
+        double y1 = -1 * (-(a / b) * min -(c / b));
+        double y2 = -1 * (-(a / b) * max - (c / b));
 
-        System.out.println("\t\t\t***** LINE *****");
+        //l.add(x);
+
+        Platform.runLater(() -> {
+            XYChart.Series<Number,Number> x = new XYChart.Series<>();
+
+            x.getData().add(new XYChart.Data<>(min, y1));
+            x.getData().add(new XYChart.Data<>(max, y2));
+
+            System.out.println(x);
+            if(chart.getData().size() > labels.size())
+            {
+                chart.getData().remove(chart.getData().size() - 1);
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            chart.getData().add(x);
+        });
+
+
     }
 
 }

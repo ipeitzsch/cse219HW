@@ -46,5 +46,8 @@ public enum AppPropertyTypes {
     RUN_ICON,
     RUN_TOOLTIP,
     OPTIONS_TOOLTIP,
-    OPTIONS_ICON;
+    OPTIONS_ICON,
+    LOAD_WORK_TITLE,
+    STILL_RUNNING_TITLE,
+    STILL_RUNNING_MSG;
 }

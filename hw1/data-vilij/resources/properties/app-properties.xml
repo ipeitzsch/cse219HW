@@ -46,6 +46,10 @@ functionality within the main workspace. -->
         <property name = "REFRESH" value = "Update Period: "/>
         <property name="CONTINUOUS" value="Continuous: "/>
         <property name="NUM_LABELS" value="Number of Labels: "/>
+        <property name="LOAD_WORK_TITLE" value="Load"/>
+        <property name="STILL_RUNNING_TITLE" value="Algorithm Still Running"/>
+        <property name="STILL_RUNNING_MSG" value="An algorithm is still running, do you still wish to exit?"/>
+
     </property_list>
     <property_options_list/>
 </properties>

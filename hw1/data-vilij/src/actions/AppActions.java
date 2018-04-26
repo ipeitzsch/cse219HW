@@ -61,7 +61,7 @@ public final class AppActions implements ActionComponent {
 
     /** The boolean property marking whether or not there are any unsaved changes. */
     SimpleBooleanProperty isUnsaved;
-
+    private boolean isRunning;
     private AppComms comms;
     private ArrayList<CheckBox> boxes;
     private String selected;
@@ -126,7 +126,33 @@ public final class AppActions implements ActionComponent {
                 AppData ap = (AppData)applicationTemplate.getDataComponent();
                 ClassProcessor cp = new ClassProcessor(a.getChart(), ap);
                 c.setCP(cp);
-                c.run();
+                int count = c.getMaxIterations();
+                if(c.tocontinue()) {
+                    isRunning = true;
+                    a.disableDisp(true);
+                    a.disableScrn(true);
+                    while (count > 0) {
+                        c.run();
+                        count -= c.getUpdateInterval();
+
+                    }
+                    a.disableDisp(false);
+                    a.disableScrn(false);
+                    isRunning = false;
+                }
+                else
+                {
+                    isRunning = true;
+                    a.disableDisp(true);
+                    a.disableScrn(true);
+                    c.run();
+                    count--;
+                    a.disableDisp(false);
+                    a.disableScrn(false);
+                    isRunning = false;
+                }
+
+              //  ap.displayLine();
             }
 
     }
@@ -198,7 +224,7 @@ public final class AppActions implements ActionComponent {
         FileChooser fileChooser = new FileChooser();
 
         fileChooser.setInitialDirectory(new File(dataDirURL.getFile()));
-        fileChooser.setTitle(manager.getPropertyValue(SAVE_WORK_TITLE.name()));
+        fileChooser.setTitle(manager.getPropertyValue(AppPropertyTypes.LOAD_WORK_TITLE.name()));
 
         String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
         String extension   = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
@@ -206,7 +232,7 @@ public final class AppActions implements ActionComponent {
                 String.format("*.%s", extension));
 
         fileChooser.getExtensionFilters().add(extFilter);
-        File selected = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
+        File selected = fileChooser.showOpenDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
 
 
         if(selected != null)
@@ -224,8 +250,17 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleExitRequest() {
         try {
-            if (!isUnsaved.get() || promptToSave())
+            if (!isUnsaved.get() || promptToSave() || !isRunning)
                 System.exit(0);
+            if(isRunning)
+            {
+                ErrorDialog     dialog   = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
+                PropertyManager manager  = applicationTemplate.manager;
+                String          errTitle = manager.getPropertyValue(AppPropertyTypes.STILL_RUNNING_TITLE.name());
+                String          errMsg   = manager.getPropertyValue(AppPropertyTypes.STILL_RUNNING_MSG.name());
+
+                dialog.show(errTitle, errMsg);
+            }
         } catch (IOException e) { errorHandlingHelper(); }
     }
 

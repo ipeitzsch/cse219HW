@@ -171,9 +171,19 @@ public class AppData implements DataComponent {
         return processor.isNull();
     }
 
-    public synchronized void handleLine(List<Integer> line) throws Exception {
-        System.out.println("\t\t***** DATA *****");
-        ((AppUI)applicationTemplate.getUIComponent()).getChart().getData().clear();
-        processor.handleLine(line, ((AppUI) applicationTemplate.getUIComponent()).getChart(), ((AppUI)applicationTemplate.getUIComponent()).getCurrentText());
+    public int getNumPoints()
+    {
+        return processor.getNumInstances();
     }
+
+    public synchronized void handleLine(List<Integer> line) throws Exception {
+
+
+        processor.handleLine(line, ((AppUI)applicationTemplate.getUIComponent()).getChart());
+    }
+
+ /*   public void displayLine()
+    {
+        processor.addLine(((AppUI)applicationTemplate.getUIComponent()).getChart());
+    } */
 }

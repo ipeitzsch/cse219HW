@@ -25,7 +25,7 @@ public class ClassProcessor {
 
     public void addLine(List<Integer> l)
     {
-        System.out.println("\t***** CP *****");
+
         try {
             data.handleLine(l);
         } catch (Exception e) {

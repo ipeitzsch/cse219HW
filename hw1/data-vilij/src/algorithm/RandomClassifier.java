@@ -41,22 +41,17 @@ public class RandomClassifier extends Classifier {
 
     @Override
     public void run() {
-        for (int i = 1; i <= maxIterations; i++) {
+        for (int i = 1; i <= updateInterval; i++) {
             int xCoefficient = new Double(RAND.nextDouble() * 100).intValue();
             int yCoefficient = new Double(RAND.nextDouble() * 100).intValue();
             int constant     = new Double(RAND.nextDouble() * 100).intValue();
 
             // this is the real output of the classifier
             output = Arrays.asList(xCoefficient, yCoefficient, constant);
-            System.out.println(i);
+
             // everything below is just for internal viewing of how the output is changing
             // in the final project, such changes will be dynamically visible in the UI
-            if (i % updateInterval == 0) {
 
-                flush();
-                System.out.println("***** FLUSH *****");
-
-            }
             if(!tocontinue())
             {
                 break;
