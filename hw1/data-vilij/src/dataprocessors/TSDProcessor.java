@@ -1,6 +1,5 @@
 package dataprocessors;
 
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -8,7 +7,6 @@ import javafx.scene.chart.XYChart;
 import javafx.scene.control.Tooltip;
 
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
@@ -48,7 +46,17 @@ public final class TSDProcessor {
         hasNull = new AtomicBoolean();
         l = new ArrayList<>();
     }
-
+    public HashMap<String, String> getLabels()
+    {
+        return (HashMap<String, String>)dataLabels;
+    }
+    public HashMap<String, Point2D> getPoints()
+    {
+        return (HashMap<String, Point2D>)dataPoints;
+    }
+    public Set<String> getLabelNames(){
+        return labels;
+    }
     /**
      * Processes the data and populated two {@link Map} objects with the data.
      *
@@ -171,35 +179,28 @@ public final class TSDProcessor {
         }
     }
 
-    public void handleLine(List<Integer> line, XYChart<Number, Number> chart) {
+    public void handleLine(List<Integer> line) {
         double a = line.get(0);
         double b = line.get(1);
         double c = line.get(2);
         double y1 = -1 * (-(a / b) * min -(c / b));
         double y2 = -1 * (-(a / b) * max - (c / b));
 
-        //l.add(x);
 
-        Platform.runLater(() -> {
+
+
             XYChart.Series<Number,Number> x = new XYChart.Series<>();
 
             x.getData().add(new XYChart.Data<>(min, y1));
             x.getData().add(new XYChart.Data<>(max, y2));
 
-            System.out.println(x);
-            if(chart.getData().size() > labels.size())
-            {
-                chart.getData().remove(chart.getData().size() - 1);
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            chart.getData().add(x);
-        });
+        l.add(x);
 
 
     }
+    public List<XYChart.Series<Number, Number>> getList()
+    {
 
+        return l;
+    }
 }

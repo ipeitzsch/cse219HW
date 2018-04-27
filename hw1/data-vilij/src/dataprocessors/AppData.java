@@ -1,5 +1,10 @@
 package dataprocessors;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.geometry.Point2D;
+import javafx.scene.chart.XYChart;
+import javafx.util.Duration;
 import settings.AppPropertyTypes;
 import ui.AppUI;
 
@@ -17,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 /**
@@ -179,11 +185,46 @@ public class AppData implements DataComponent {
     public synchronized void handleLine(List<Integer> line) throws Exception {
 
 
-        processor.handleLine(line, ((AppUI)applicationTemplate.getUIComponent()).getChart());
+        processor.handleLine(line);
     }
 
- /*   public void displayLine()
+    public void displayLine(AtomicBoolean isRunning)
     {
-        processor.addLine(((AppUI)applicationTemplate.getUIComponent()).getChart());
-    } */
+        List<XYChart.Series<Number,Number>> line = processor.getList();
+        AppUI a = (AppUI) applicationTemplate.getUIComponent();
+        XYChart<Number, Number> chart = a.getChart();
+
+        Timeline animate = new Timeline();
+
+        animate.setCycleCount(line.size());
+        AtomicInteger i = new AtomicInteger(0);
+        animate.getKeyFrames().add(new KeyFrame(Duration.millis(100), (javafx.event.ActionEvent actionEvent) -> {
+            if(i.get() != 0)
+            {
+                chart.getData().remove(chart.getData().size() - 1);
+            }
+            line.get(i.get()).setName("LINE");
+            chart.getData().add(line.get(i.get()));
+            i.set(i.get() + 1);
+            if(i.get() == line.size())
+            {
+                a.setScreenShotDisable(false);
+                a.disableDisp(false);
+                isRunning.set(false);
+            }
+        }));
+        animate.play();
+    }
+    public Set<String> getLabelNames()
+    {
+        return processor.getLabelNames();
+    }
+    public HashMap<String, String> getLabels()
+    {
+        return processor.getLabels();
+    }
+    public HashMap<String, Point2D> getPoints()
+    {
+        return processor.getPoints();
+    }
 }

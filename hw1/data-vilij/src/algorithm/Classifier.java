@@ -69,4 +69,8 @@ public abstract class Classifier implements Algorithm {
     {
         cp = c;
     }
+    public void setDataset(DataSet d)
+    {
+        dataset = d;
+    }
 }

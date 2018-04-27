@@ -57,7 +57,7 @@ public final class AppUI extends UITemplate {
     public void setSaveDisable(boolean b){ saveButton.setDisable(b);}
     public void setNewDisable(boolean b) { newButton.setDisable(b);}
     public void disableDisp(boolean b) {displayButton.setDisable(b);}
-    public void disableScrn(boolean b) { scrnshotButton.setDisable(b);}
+    public boolean isScrnDisabled() { return scrnshotButton.isDisabled();}
     public void setScreenShotDisable(boolean b) { scrnshotButton.setDisable(b);}
     public Scene getScene() {return primaryScene;}
     public void setText(String s) {textArea.setText(s); }
@@ -91,6 +91,42 @@ public final class AppUI extends UITemplate {
     public void setReadOnly(boolean b)
     {
         textArea.setDisable(b);
+        AppData a = (AppData)(applicationTemplate.getDataComponent());
+        if(textArea.isDisabled()) {
+
+
+            String s = "Label names: ";
+            for(String g : a.getLabelNames())
+            {
+                s = s + g + " ";
+            }
+            AppActions ap = (AppActions) applicationTemplate.getActionComponent();
+            String path = "";
+            if(ap.getPath() != null)
+            {
+                path = "Path: " + ap.getPath();
+            }
+            Text t = new Text(path);
+            t.setWrappingWidth(algPane.getWidth());
+            algPane.getChildren().remove(0, algPane.getChildren().size());
+            algPane.getChildren().addAll(new Text("There are " + a.getNumLabels() + " labels."), new Text("There are " + a.getNumPoints() + " instances."), new Text(s), t, classifier, cluster);
+            setClassifierDisable(true);
+            setClusterDisable(false);
+            if(a.getNumLabels() == 2 && !(a.hasNull()))
+            {
+                setClassifierDisable(false);
+            }
+
+            readOnly.setText("Edit");
+        }
+        else
+        {
+            readOnly.setText("Done");
+            algPane.getChildren().remove(0, algPane.getChildren().size());
+            algPane.getChildren().addAll(classifier, cluster);
+            setClusterDisable(true);
+            setClassifierDisable(true);
+        }
     }
     public void setClassifierDisable(boolean b)
     {
@@ -129,16 +165,9 @@ public final class AppUI extends UITemplate {
         loadButton.setOnAction(e -> {
             AppData a = (AppData)(applicationTemplate.getDataComponent());
             applicationTemplate.getActionComponent().handleLoadRequest();
-            algPane.getChildren().remove(0, algPane.getChildren().size());
-            algPane.getChildren().addAll(new Text("There are " + a.getNumLabels() + " labels."), classifier, cluster);
-            setClassifierDisable(true);
-            setClusterDisable(false);
-            if(a.getNumLabels() == 2)
-            {
-                setClassifierDisable(false);
-            }
 
-            readOnly.setText("Edit");
+
+
         });
         exitButton.setOnAction(e -> applicationTemplate.getActionComponent().handleExitRequest());
         printButton.setOnAction(e -> applicationTemplate.getActionComponent().handlePrintRequest());
@@ -186,8 +215,19 @@ public final class AppUI extends UITemplate {
             if(textArea.isDisabled()) {
                 a.clear();
                 a.loadData(textArea.getText());
+                String s = "Label names: ";
+                for(String g : a.getLabelNames())
+                {
+                    s = s + g + " ";
+                }
+                AppActions ap = (AppActions) applicationTemplate.getActionComponent();
+                String path = "";
+                if(ap.getPath() != null)
+                {
+                    path = "Path: " + ap.getPath();
+                }
                 algPane.getChildren().remove(0, algPane.getChildren().size());
-                algPane.getChildren().addAll(new Text("There are " + a.getNumLabels() + " labels."), new Text("There are " + a.getNumPoints() + " instances."), classifier, cluster);
+                algPane.getChildren().addAll(new Text("There are " + a.getNumLabels() + " labels."), new Text("There are " + a.getNumPoints() + " instances."), new Text(s), new Text(path), classifier, cluster);
                 setClassifierDisable(true);
                 setClusterDisable(false);
                 if(a.getNumLabels() == 2 && !(a.hasNull()))
@@ -242,8 +282,8 @@ public final class AppUI extends UITemplate {
         cluster = new Button("Cluster");
         setClusterDisable(true);
         setClassifierDisable(true);
-        algPane = new VBox(8);
-        algPane.getChildren().addAll(classifier, cluster);
+        algPane = new VBox();
+        algPane.getChildren().addAll(new Text(""), new Text(""), new Text(""), new Text(""), classifier, cluster);
 
         leftPanel.getChildren().addAll(leftPanelTitle, textArea, processButtonsBox, algPane);
 
@@ -297,7 +337,7 @@ public final class AppUI extends UITemplate {
                     dataComponent.displayData();
                     AppActions a = (AppActions)applicationTemplate.getActionComponent();
                     a.handleDisplayRequest();
-                    scrnshotButton.setDisable(false);
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

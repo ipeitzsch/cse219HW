@@ -71,6 +71,13 @@ public class DataSet {
         locations.put(arr[0], locationOf(arr[2]));
     }
 
-
+    public void setLabels(HashMap<String, String> l)
+    {
+        labels = l;
+    }
+    public void setLocations(HashMap<String, Point2D> l)
+    {
+        locations = l;
+    }
 
 }

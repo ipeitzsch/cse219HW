@@ -4,6 +4,7 @@ import algorithm.Classifier;
 import comms.AppComms;
 import dataprocessors.AppData;
 import dataprocessors.ClassProcessor;
+import dataprocessors.DataSet;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -61,7 +62,7 @@ public final class AppActions implements ActionComponent {
 
     /** The boolean property marking whether or not there are any unsaved changes. */
     SimpleBooleanProperty isUnsaved;
-    private boolean isRunning;
+    private AtomicBoolean isRunning = new AtomicBoolean(false);
     private AppComms comms;
     private ArrayList<CheckBox> boxes;
     private String selected;
@@ -118,38 +119,50 @@ public final class AppActions implements ActionComponent {
                 });
         return b.get();
     }
+    public String getPath()
+    {
+        if(dataFilePath != null)
+            return dataFilePath.toString();
+        return null;
+    }
     public void handleDisplayRequest(){
             if(selected != null && classif)
             {
                 Classifier c = comms.getClassif(selected);
+                DataSet d = new DataSet();
+
+
                 AppUI a = (AppUI)applicationTemplate.getUIComponent();
                 AppData ap = (AppData)applicationTemplate.getDataComponent();
+                d.setLabels(ap.getLabels());
+                d.setLocations(ap.getPoints());
+                c.setDataset(d);
                 ClassProcessor cp = new ClassProcessor(a.getChart(), ap);
                 c.setCP(cp);
                 int count = c.getMaxIterations();
                 if(c.tocontinue()) {
-                    isRunning = true;
+                    isRunning.set(true);
                     a.disableDisp(true);
-                    a.disableScrn(true);
-                    while (count > 0) {
-                        c.run();
-                        count -= c.getUpdateInterval();
+                    a.setScreenShotDisable(true);
 
-                    }
-                    a.disableDisp(false);
-                    a.disableScrn(false);
-                    isRunning = false;
+                        c.run();
+                        ap.displayLine(isRunning);
+
+
+
                 }
                 else
                 {
-                    isRunning = true;
-                    a.disableDisp(true);
-                    a.disableScrn(true);
-                    c.run();
-                    count--;
-                    a.disableDisp(false);
-                    a.disableScrn(false);
-                    isRunning = false;
+                    if(count != 0) {
+                        isRunning.set(true);
+                        a.disableDisp(true);
+                        a.setScreenShotDisable(true);
+                        c.run();
+                        count--;
+                        ap.displayLine(isRunning);
+                    }
+
+
                 }
 
               //  ap.displayLine();
@@ -250,17 +263,22 @@ public final class AppActions implements ActionComponent {
     @Override
     public void handleExitRequest() {
         try {
-            if (!isUnsaved.get() || promptToSave() || !isRunning)
-                System.exit(0);
-            if(isRunning)
+
+            if(isRunning.get())
             {
-                ErrorDialog     dialog   = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
+                ConfirmationDialog     dialog   = (ConfirmationDialog) applicationTemplate.getDialog(Dialog.DialogType.CONFIRMATION);
                 PropertyManager manager  = applicationTemplate.manager;
                 String          errTitle = manager.getPropertyValue(AppPropertyTypes.STILL_RUNNING_TITLE.name());
                 String          errMsg   = manager.getPropertyValue(AppPropertyTypes.STILL_RUNNING_MSG.name());
 
                 dialog.show(errTitle, errMsg);
+                if(dialog.getSelectedOption().equals(ConfirmationDialog.Option.YES))
+                {
+                    isRunning.set(false);
+                }
             }
+            if ((!isUnsaved.get() || promptToSave()) && !isRunning.get())
+                System.exit(0);
         } catch (IOException e) { errorHandlingHelper(); }
     }
 
