@@ -1,60 +1,70 @@
 package comms;
 
-import algorithm.Classifier;
-import algorithm.Clus;
-import algorithm.Cluster;
-import algorithm.RandomClassifier;
+import algorithm.*;
 import vilij.templates.ApplicationTemplate;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 public class AppComms {
-    private HashMap<String, Classifier> classifiers;
-    private HashMap<String, Cluster> clusters;
+    private HashMap<String, Algorithm> algorithms;
+
 
     public AppComms()
     {
-        classifiers = new HashMap<>();
-        clusters = new HashMap<>();
+        algorithms = new HashMap<>();
 
-        classifiers.put("Random Classifier", new RandomClassifier());
-        clusters.put("Cluster", new Clus());
+
+        algorithms.put("Random Classifier", new RandomClassifier());
+        algorithms.put("Random Cluster", new RandomCluster());
     }
 
     public Set<String> getClassNames()
     {
-        return classifiers.keySet();
+        Set<String> names = new HashSet<>();
+
+        for(String s : algorithms.keySet())
+        {
+            if(algorithms.get(s) instanceof Classifier)
+            {
+                names.add(s);
+            }
+        }
+        return names;
     }
     public Set<String> getClustNames()
     {
-        return clusters.keySet();
+        Set<String> names = new HashSet<>();
+
+        for(String s : algorithms.keySet())
+        {
+            if(algorithms.get(s) instanceof Cluster)
+            {
+                names.add(s);
+            }
+        }
+        return names;
     }
-    public Classifier getClassif(String s)
+    public Algorithm getAlgorithm(String s)
     {
-        return classifiers.get(s);
-    }
-    public Cluster getClust(String s)
-    {
-        return clusters.get(s);
+        return algorithms.get(s);
     }
     public void setClasssif(String name, int max, int refresh, boolean cont, ApplicationTemplate a)
     {
-        Classifier c = classifiers.get(name);
+        Classifier c = (Classifier) algorithms.get(name);
         c.setMax(max);
         c.setUpdate(refresh);
         c.setToContinue(cont);
-
-        classifiers.put(name, c);
+        algorithms.put(name, c);
     }
     public void setClust(String name, int max, int refresh, boolean cont, int num, ApplicationTemplate a)
     {
-        Cluster c = clusters.get(name);
+        Cluster c = (Cluster) algorithms.get(name);
         c.setMax(max);
         c.setUpdate(refresh);
         c.setToContinue(cont);
         c.setNumLabels(num);
-        c.setApplicationTemplate(a);
-        clusters.put(name, c);
+        algorithms.put(name, c);
     }
 }

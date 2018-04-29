@@ -74,7 +74,7 @@ public final class AppUI extends UITemplate {
                         }
                     }
                     String h = "";
-                    for (int i = 0; i < 10 || i < s.size(); i++) {
+                    for (int i = 0; i < 10 && i < s.size(); i++) {
                         h = h + s.get(i) + "\n";
                     }
                     textArea.setText(h);
@@ -87,6 +87,10 @@ public final class AppUI extends UITemplate {
         leftPanel.getChildren().remove(algPane);
         algPane = alg;
         leftPanel.getChildren().add(algPane);
+    }
+    public VBox getAlgPane()
+    {
+        return algPane;
     }
     public void setReadOnly(boolean b)
     {
@@ -126,6 +130,7 @@ public final class AppUI extends UITemplate {
             algPane.getChildren().addAll(classifier, cluster);
             setClusterDisable(true);
             setClassifierDisable(true);
+            a.setLoaded(false);
         }
     }
     public void setClassifierDisable(boolean b)
@@ -226,8 +231,10 @@ public final class AppUI extends UITemplate {
                 {
                     path = "Path: " + ap.getPath();
                 }
+                Text t = new Text(path);
+                t.setWrappingWidth(algPane.getWidth());
                 algPane.getChildren().remove(0, algPane.getChildren().size());
-                algPane.getChildren().addAll(new Text("There are " + a.getNumLabels() + " labels."), new Text("There are " + a.getNumPoints() + " instances."), new Text(s), new Text(path), classifier, cluster);
+                algPane.getChildren().addAll(new Text("There are " + a.getNumLabels() + " labels."), new Text("There are " + a.getNumPoints() + " instances."), new Text(s), t, classifier, cluster);
                 setClassifierDisable(true);
                 setClusterDisable(false);
                 if(a.getNumLabels() == 2 && !(a.hasNull()))
@@ -244,6 +251,7 @@ public final class AppUI extends UITemplate {
                 algPane.getChildren().addAll(classifier, cluster);
                 setClusterDisable(true);
                 setClassifierDisable(true);
+                a.setLoaded(false);
             }
 
 
@@ -330,11 +338,8 @@ public final class AppUI extends UITemplate {
         displayButton.setOnAction(event -> {
             if (hasNewText) {
                 try {
-                    chart.getData().clear();
                     AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
-                    dataComponent.clear();
-                    dataComponent.loadData(textArea.getText());
-                    dataComponent.displayData();
+
                     AppActions a = (AppActions)applicationTemplate.getActionComponent();
                     a.handleDisplayRequest();
 

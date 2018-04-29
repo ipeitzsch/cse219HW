@@ -49,29 +49,30 @@ public class ClusterDialog {
         PropertyManager manager = apt.manager;
 
         stage.initModality(Modality.WINDOW_MODAL);
-        Cluster cluster = comms.getClust(selection);
+        Cluster cluster = (Cluster)comms.getAlgorithm(selection);
 
-        VBox holder = new VBox(50);
-        HBox max = new HBox(500);
+        VBox text = new VBox(10);
+        VBox input = new VBox();
+        HBox holder = new HBox();
         TextField maxIter = new TextField();
         maxIter.setText(cluster.getMaxIterations() > 0 ? cluster.getMaxIterations() + "" : "");
-        max.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.MAX_ITERATIONS.name())), maxIter);
 
-        HBox refresh = new HBox(500);
+
+
         TextField update = new TextField();
         update.setText(cluster.getUpdateInterval() > 0 ? cluster.getUpdateInterval() + "" : "");
-        refresh.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.REFRESH.name())), update);
 
-        HBox labels = new HBox(500);
+
+
         TextField num = new TextField();
-        num.setText(cluster.getNumLabels() > 0 ? cluster.getUpdateInterval() + "" : "");
-        labels.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.NUM_LABELS.name())), num);
+        num.setText(cluster.getNumLabels() > 0 ? cluster.getNumLabels() + "" : "");
 
-        HBox cont = new HBox(500);
+
+
         CheckBox run = new CheckBox();
         run.setIndeterminate(false);
         run.setSelected(cluster.tocontinue());
-        cont.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.CONTINUOUS.name())), run);
+
 
         Button done = new Button("Done");
         done.setOnAction(e -> {
@@ -93,8 +94,9 @@ public class ClusterDialog {
                 er.show("Error", manager.getPropertyValue(AppPropertyTypes.INTEGERS_ONLY.name()));
             }
         });
-
-        holder.getChildren().addAll(max, refresh, cont, labels, done);
+        text.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.MAX_ITERATIONS.name())), new Text(manager.getPropertyValue(AppPropertyTypes.REFRESH.name())),new Text(manager.getPropertyValue(AppPropertyTypes.NUM_LABELS.name())), new Text(manager.getPropertyValue(AppPropertyTypes.CONTINUOUS.name())), done);
+        input.getChildren().addAll(maxIter, update, num, run);
+        holder.getChildren().addAll(text, input);
         Scene sc = new Scene(holder);
         stage.setScene(sc);
     }

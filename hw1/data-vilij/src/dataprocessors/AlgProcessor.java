@@ -1,23 +1,24 @@
 package dataprocessors;
 
-import javafx.scene.chart.Axis;
+
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import vilij.templates.ApplicationTemplate;
 
 import java.util.List;
+import java.util.Map;
 
-public class ClassProcessor {
+public class AlgProcessor {
 
     private XYChart<Number, Number> chart;
     private AppData data;
-    public ClassProcessor()
+    public AlgProcessor()
     {
         data = new AppData(new ApplicationTemplate());
         chart = new LineChart<>(new NumberAxis(), new NumberAxis());
     }
-    public ClassProcessor(XYChart<Number, Number> c, AppData a)
+    public AlgProcessor(XYChart<Number, Number> c, AppData a)
     {
         chart = c;
         data = a;
@@ -25,11 +26,12 @@ public class ClassProcessor {
 
     public void addLine(List<Integer> l)
     {
-
-        try {
             data.handleLine(l);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+    }
+
+    public void refresh(Map<String, String> labels)
+    {
+        data.setLabels(labels);
     }
 }

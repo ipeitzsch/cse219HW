@@ -4,6 +4,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
 import javafx.scene.chart.XYChart;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import settings.AppPropertyTypes;
 import ui.AppUI;
@@ -35,10 +36,14 @@ public class AppData implements DataComponent {
 
     private TSDProcessor        processor;
     private ApplicationTemplate applicationTemplate;
-
+    private List<Map<String, String>> labels = new ArrayList<>();
+    private boolean isLoaded;
+    private String loadedData;
     public AppData(ApplicationTemplate applicationTemplate) {
         this.processor = new TSDProcessor();
         this.applicationTemplate = applicationTemplate;
+        isLoaded = false;
+        loadedData = "";
     }
 
     public TSDProcessor getProcessor() {
@@ -61,34 +66,32 @@ public class AppData implements DataComponent {
                     s = s + s1 + "\n";
                  count++;
             }
-            checkValid(s);
-            processor.processString(s);
-            AppUI a = (AppUI)(applicationTemplate.getUIComponent());
-            s = "";
-            for(int i = 0; i < 10; i++)
-            {
-                String q = S.get(i);
-                s = s + q + "\n";
-            }
-            a.setText(s);
-            a.setChange(S);
-            a.setReadOnly(true);
+            if(checkValid(s)) {
+                loadedData = s;
+                processor.processString(s);
+                AppUI a = (AppUI) (applicationTemplate.getUIComponent());
+                s = "";
+                for (int i = 0; i < 10 && i < S.size(); i++) {
+                    String q = S.get(i);
+                    s = s + q + "\n";
+                }
+                a.setText(s);
+                a.setChange(S);
+                a.setReadOnly(true);
+                isLoaded = true;
 
-
-            ErrorDialog c = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
-            int cc;
-            if(count < 10)
-            {
-                cc = count;
+                ErrorDialog c = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
+                int cc;
+                if (count < 10) {
+                    cc = count;
+                } else {
+                    cc = 10;
+                }
+                c.show("Load File", "Successfully loaded " + count + " lines. " + cc + " lines are shown in the text area.");
             }
-            else
-            {
-                cc = 10;
-            }
-            c.show("Load File", "Successfully loaded " + count + " lines. " + cc + " lines are shown in the text area.");
-
         }
         catch(Exception e){
+            e.printStackTrace();
             ErrorDialog     dialog   = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
             PropertyManager manager  = applicationTemplate.manager;
             String          errTitle = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_TITLE.name());
@@ -99,7 +102,18 @@ public class AppData implements DataComponent {
         }
         // TODO: NOT A PART OF HW 1
     }
-
+    public boolean isLoaded()
+    {
+        return isLoaded;
+    }
+    public String getLoadedData()
+    {
+        return loadedData;
+    }
+    public void setLoaded(boolean b)
+    {
+        isLoaded = b;
+    }
     public boolean checkValid(String text)
     {
         ArrayList<Integer> a = new ArrayList<>();
@@ -116,8 +130,8 @@ public class AppData implements DataComponent {
                             throw new Exception("Invalid/Repeated name: " + list.get(0) + ".");
                         }
                         String[] pair  = list.get(2).split(",");
-                        int i = Integer.parseInt(pair[0]);
-                        int j = Integer.parseInt(pair[1]);
+                        double i = Double.parseDouble(pair[0]);
+                        double j = Double.parseDouble(pair[1]);
                         a.add(0);
                     } catch (Exception e) {
                         b.set(false);
@@ -166,12 +180,51 @@ public class AppData implements DataComponent {
     public void displayData() {
         processor.toChartData(((AppUI) applicationTemplate.getUIComponent()).getChart());
     }
+    public void displayClust(AtomicBoolean isRunning, boolean cont, AtomicInteger count, AtomicBoolean firstClick)
+    {
+        int size = 1;
+        if(cont)
+        {
+            size = labels.size();
+        }
+        AppUI a = (AppUI) applicationTemplate.getUIComponent();
+        XYChart<Number, Number> chart = a.getChart();
 
+        Timeline animate = new Timeline();
+
+        animate.setCycleCount(size);
+
+        if(a.getAlgPane().getChildren().get(a.getAlgPane().getChildren().size() - 1) instanceof Text)
+        {
+            if(((Text) a.getAlgPane().getChildren().get(a.getAlgPane().getChildren().size() - 1)).getText().equals(applicationTemplate.manager.getPropertyValue(AppPropertyTypes.DONE.name())))
+            {
+                a.getAlgPane().getChildren().remove(a.getAlgPane().getChildren().size() - 1);
+            }
+        }
+        animate.getKeyFrames().add(new KeyFrame(Duration.millis(100), (javafx.event.ActionEvent actionEvent) -> {
+            chart.getData().clear();
+            processor.setLabels(labels.get(count.get()));
+
+            count.set(count.get() + 1);
+            processor.toChartData(chart);
+            if(count.get() == labels.size())
+            {
+                isRunning.set(false);
+                a.setScreenShotDisable(false);
+                a.disableDisp(false);
+                firstClick.set(true);
+                count.set(0);
+                a.getAlgPane().getChildren().add(new Text(applicationTemplate.manager.getPropertyValue(AppPropertyTypes.DONE.name())));
+            }
+        }));
+        animate.play();
+    }
     public int getNumLabels()
     {
        return processor.getNumLabels();
     }
-
+    public int getLabelsLength() { return labels.size(); }
+    public int getLinesLength() { return processor.getList().size(); }
     public boolean hasNull()
     {
         return processor.isNull();
@@ -182,38 +235,52 @@ public class AppData implements DataComponent {
         return processor.getNumInstances();
     }
 
-    public synchronized void handleLine(List<Integer> line) throws Exception {
-
-
+    public synchronized void handleLine(List<Integer> line) {
         processor.handleLine(line);
     }
-
-    public void displayLine(AtomicBoolean isRunning)
+    public synchronized void setLabels(Map<String, String> labels)
     {
-        List<XYChart.Series<Number,Number>> line = processor.getList();
+        this.labels.add(labels);
+    }
+    public void displayLine(AtomicBoolean isRunning, boolean cont, AtomicInteger count, AtomicBoolean firstClick)
+    {
+        int size = 1;
+        List<XYChart.Series<Number, Number>> line = processor.getList();
         AppUI a = (AppUI) applicationTemplate.getUIComponent();
         XYChart<Number, Number> chart = a.getChart();
-
+        if(cont) {
+            size = line.size();
+        }
         Timeline animate = new Timeline();
 
-        animate.setCycleCount(line.size());
-        AtomicInteger i = new AtomicInteger(0);
-        animate.getKeyFrames().add(new KeyFrame(Duration.millis(100), (javafx.event.ActionEvent actionEvent) -> {
-            if(i.get() != 0)
+        animate.setCycleCount(size);
+
+        if(a.getAlgPane().getChildren().get(a.getAlgPane().getChildren().size() - 1) instanceof Text)
+        {
+            if(((Text) a.getAlgPane().getChildren().get(a.getAlgPane().getChildren().size() - 1)).getText().equals(applicationTemplate.manager.getPropertyValue(AppPropertyTypes.DONE.name())))
             {
+                a.getAlgPane().getChildren().remove(a.getAlgPane().getChildren().size() - 1);
+            }
+        }
+
+        animate.getKeyFrames().add(new KeyFrame(Duration.millis(100), (javafx.event.ActionEvent actionEvent) -> {
+            if (count.get() != 0) {
                 chart.getData().remove(chart.getData().size() - 1);
             }
-            line.get(i.get()).setName("LINE");
-            chart.getData().add(line.get(i.get()));
-            i.set(i.get() + 1);
-            if(i.get() == line.size())
-            {
+            line.get(count.get()).setName("LINE");
+            chart.getData().add(line.get(count.get()));
+            count.set(count.get() + 1);
+            if (count.get() == line.size()) {
                 a.setScreenShotDisable(false);
                 a.disableDisp(false);
                 isRunning.set(false);
+                firstClick.set(true);
+                count.set(0);
+                a.getAlgPane().getChildren().add(new Text(applicationTemplate.manager.getPropertyValue(AppPropertyTypes.DONE.name())));
             }
         }));
         animate.play();
+
     }
     public Set<String> getLabelNames()
     {

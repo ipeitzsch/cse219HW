@@ -1,9 +1,12 @@
 package actions;
 
+import algorithm.Algorithm;
 import algorithm.Classifier;
+import algorithm.Cluster;
 import comms.AppComms;
+import dataprocessors.AlgProcessor;
 import dataprocessors.AppData;
-import dataprocessors.ClassProcessor;
+
 import dataprocessors.DataSet;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -41,6 +44,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static vilij.settings.PropertyTypes.GUI_RESOURCE_PATH;
@@ -66,7 +70,8 @@ public final class AppActions implements ActionComponent {
     private AppComms comms;
     private ArrayList<CheckBox> boxes;
     private String selected;
-    private boolean classif;
+    private AtomicBoolean firstClick = new AtomicBoolean(true);
+    private AtomicInteger count = new AtomicInteger();
     public AppActions(ApplicationTemplate applicationTemplate) {
         this.applicationTemplate = applicationTemplate;
         this.isUnsaved = new SimpleBooleanProperty(false);
@@ -126,46 +131,78 @@ public final class AppActions implements ActionComponent {
         return null;
     }
     public void handleDisplayRequest(){
-            if(selected != null && classif)
+            if(selected != null)
             {
-                Classifier c = comms.getClassif(selected);
+                Algorithm c = comms.getAlgorithm(selected);
                 DataSet d = new DataSet();
 
 
                 AppUI a = (AppUI)applicationTemplate.getUIComponent();
                 AppData ap = (AppData)applicationTemplate.getDataComponent();
+
+                if(firstClick.get())
+                {
+                    ap.clear();
+                    String s = a.getCurrentText();
+                    if(ap.isLoaded())
+                    {
+                        s = ap.getLoadedData();
+                    }
+                    a.getChart().getData().clear();
+                    ap.loadData(s);
+                    ap.displayData();
+                }
+
                 d.setLabels(ap.getLabels());
                 d.setLocations(ap.getPoints());
                 c.setDataset(d);
-                ClassProcessor cp = new ClassProcessor(a.getChart(), ap);
+                AlgProcessor cp = new AlgProcessor(a.getChart(), ap);
                 c.setCP(cp);
-                int count = c.getMaxIterations();
+
+
+
+
                 if(c.tocontinue()) {
                     isRunning.set(true);
                     a.disableDisp(true);
                     a.setScreenShotDisable(true);
 
                         c.run();
-                        ap.displayLine(isRunning);
-
+                        if(c instanceof Classifier)
+                        {
+                            ap.displayLine(isRunning, true, count, new AtomicBoolean(false));
+                        }
+                        else if(c instanceof Cluster)
+                        {
+                            ap.displayClust(isRunning, true, count, new AtomicBoolean(false));
+                        }
 
 
                 }
                 else
                 {
-                    if(count != 0) {
                         isRunning.set(true);
                         a.disableDisp(true);
                         a.setScreenShotDisable(true);
-                        c.run();
-                        count--;
-                        ap.displayLine(isRunning);
-                    }
+                        if(firstClick.get()) {
+                            c.run();
+                            firstClick.set(false);
+                        }
+                        if(c instanceof Classifier)
+                        {
 
-
+                            ap.displayLine(isRunning, false, count, firstClick);
+                        }
+                        else if(c instanceof Cluster)
+                        {
+                            ap.displayClust(isRunning, false, count, firstClick);
+                        }
+                        isRunning.set(false);
+                        a.disableDisp(false);
+                        a.setScreenShotDisable(false);
                 }
 
-              //  ap.displayLine();
+
             }
 
     }
@@ -242,7 +279,7 @@ public final class AppActions implements ActionComponent {
         String description = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT_DESC.name());
         String extension   = manager.getPropertyValue(AppPropertyTypes.DATA_FILE_EXT.name());
         ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
-                String.format("*.%s", extension));
+                String.format("*%s", extension));
 
         fileChooser.getExtensionFilters().add(extFilter);
         File selected = fileChooser.showOpenDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
@@ -355,7 +392,7 @@ public final class AppActions implements ActionComponent {
         }
 
         a.setAlgPane(algPane);
-        classif = true;
+
     }
 
     public void handleClusterRequest()
@@ -405,7 +442,7 @@ public final class AppActions implements ActionComponent {
         }
 
         a.setAlgPane(algPane);
-        classif = false;
+
     }
 
     /**

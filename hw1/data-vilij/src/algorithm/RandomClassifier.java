@@ -1,11 +1,8 @@
 package algorithm;
 
-import dataprocessors.ClassProcessor;
-import dataprocessors.DataSet;
-import vilij.templates.ApplicationTemplate;
+import dataprocessors.AlgProcessor;
 
-import java.io.IOException;
-import java.nio.file.Paths;
+import dataprocessors.DataSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +33,7 @@ public class RandomClassifier extends Classifier {
     }
     public RandomClassifier(){
        // dataset = new DataSet(applicationTemplate);
-        cp = new ClassProcessor();
+        cp = new AlgProcessor();
     }
 
     @Override
@@ -55,13 +52,12 @@ public class RandomClassifier extends Classifier {
             {
                 flush();
             }
-
-            if(!tocontinue())
-            {
-                break;
-            }
         }
-        flush();
+        if(maxIterations % updateInterval == 0)
+        {
+            flush();
+        }
+
 
     }
 

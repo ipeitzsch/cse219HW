@@ -1,5 +1,7 @@
 package algorithm;
 
+import dataprocessors.AlgProcessor;
+import dataprocessors.DataSet;
 import vilij.templates.ApplicationTemplate;
 
 import java.util.List;
@@ -12,14 +14,16 @@ public abstract class Cluster implements Algorithm{
      * into polynomial curves instead of just straight lines.
      * See 3.4.4 of the SRS.
      */
-    protected List<Integer> output;
+
     protected ApplicationTemplate applicationTemplate;
-    public List<Integer> getOutput() { return output; }
+
     protected int maxIterations;
     protected int updateInterval;
     protected int numLabels;
     // currently, this value does not change after instantiation
     protected AtomicBoolean tocontinue;
+    protected AlgProcessor cp;
+    protected DataSet dataSet;
 
     @Override
     public int getMaxIterations() {
@@ -40,26 +44,40 @@ public abstract class Cluster implements Algorithm{
         }
         return tocontinue.get();
     }
+
     public int getNumLabels()
     {
         return numLabels;
     }
+    @Override
     public void setMax(int i)
     {
         maxIterations = i;
     }
+    @Override
     public void setUpdate(int i)
     {
         updateInterval = i;
     }
+    @Override
     public void setToContinue(boolean b)
     {
         tocontinue.set(b);
     }
+
     public void setNumLabels(int i)
     {
         numLabels = i;
     }
-    public void setApplicationTemplate(ApplicationTemplate a) { applicationTemplate = a; }
+
+    public void setCP(AlgProcessor c)
+    {
+        cp = c;
+    }
+
+    public void setDataset(DataSet d)
+    {
+        dataSet = d;
+    }
 
 }

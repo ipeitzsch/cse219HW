@@ -49,5 +49,6 @@ public enum AppPropertyTypes {
     OPTIONS_ICON,
     LOAD_WORK_TITLE,
     STILL_RUNNING_TITLE,
-    STILL_RUNNING_MSG;
+    STILL_RUNNING_MSG,
+    DONE;
 }

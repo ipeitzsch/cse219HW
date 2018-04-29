@@ -1,5 +1,10 @@
 package algorithm;
 
+import dataprocessors.AlgProcessor;
+import dataprocessors.DataSet;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * This interface provides a way to run an algorithm
  * on a thread as a {@link java.lang.Runnable} object.
@@ -13,5 +18,16 @@ public interface Algorithm extends Runnable {
     int getUpdateInterval();
 
     boolean tocontinue();
+
+    void setCP(AlgProcessor c);
+
+    void setMax(int i);
+
+    void setUpdate(int i);
+
+    void setToContinue(boolean b);
+
+    void setDataset(DataSet d);
+
 
 }

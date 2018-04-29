@@ -49,7 +49,7 @@ functionality within the main workspace. -->
         <property name="LOAD_WORK_TITLE" value="Load"/>
         <property name="STILL_RUNNING_TITLE" value="Algorithm Still Running"/>
         <property name="STILL_RUNNING_MSG" value="An algorithm is still running, do you still wish to exit?"/>
-
+        <property name = "DONE" value="Done."/>
     </property_list>
     <property_options_list/>
 </properties>

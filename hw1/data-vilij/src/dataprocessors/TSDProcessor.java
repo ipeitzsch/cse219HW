@@ -3,6 +3,7 @@ package dataprocessors;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Tooltip;
 
@@ -38,6 +39,8 @@ public final class TSDProcessor {
     private AtomicBoolean hasNull;
     private double min;
     private double max;
+    private double minY;
+    private double maxY;
     private List<XYChart.Series<Number, Number>>l;
     public TSDProcessor() {
         dataLabels = new HashMap<>();
@@ -56,6 +59,10 @@ public final class TSDProcessor {
     }
     public Set<String> getLabelNames(){
         return labels;
+    }
+    public void setLabels(Map<String, String> lab)
+    {
+        dataLabels = lab;
     }
     /**
      * Processes the data and populated two {@link Map} objects with the data.
@@ -135,7 +142,6 @@ public final class TSDProcessor {
         setTooltip(chart);
 
 
-
     }
 
     void clear() {
@@ -163,6 +169,8 @@ public final class TSDProcessor {
                 {
                     min = (Double)c.getXValue();
                     max = (Double)c.getXValue();
+                    minY = (Double)c.getYValue();
+                    maxY = (Double)c.getYValue();
                     flag = false;
                 }
                 else if(min > (Double)c.getXValue())
@@ -172,6 +180,14 @@ public final class TSDProcessor {
                 else if(max < (Double)c.getXValue())
                 {
                     max = (Double)c.getXValue();
+                }
+                if(minY > (Double)c.getYValue())
+                {
+                    minY = (Double)c.getYValue();
+                }
+                else if(maxY < (Double)c.getYValue())
+                {
+                    maxY = (Double)c.getYValue();
                 }
                 Tooltip t = new Tooltip(c.getExtraValue().toString());
                 Tooltip.install(c.getNode(), t);
@@ -200,7 +216,22 @@ public final class TSDProcessor {
     }
     public List<XYChart.Series<Number, Number>> getList()
     {
-
         return l;
     }
+    public double getMinX()
+    {
+        return min;
+    }
+    public double getMaxX() {
+        return max;
+    }
+    public double getMinY()
+    {
+        return minY;
+    }
+
+    public double getMaxY() {
+        return maxY;
+    }
 }
+

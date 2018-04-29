@@ -47,24 +47,26 @@ public class ClassifDialog {
     private void init() {
         PropertyManager manager = apt.manager;
         stage.initModality(Modality.WINDOW_MODAL);
-        Classifier classif = comms.getClassif(selection);
+        Classifier classif = (Classifier)comms.getAlgorithm(selection);
 
-        VBox holder = new VBox(50);
-        HBox max = new HBox(500);
+        VBox text = new VBox(10);
+        VBox input = new VBox();
+        HBox holder = new HBox();
+
         TextField maxIter = new TextField();
         maxIter.setText(classif.getMaxIterations() > 0 ? classif.getMaxIterations() + "" : "");
-        max.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.MAX_ITERATIONS.name())), maxIter);
 
-        HBox refresh = new HBox(500);
+
+
         TextField update = new TextField();
         update.setText(classif.getUpdateInterval() > 0 ? classif.getUpdateInterval() + "" : "");
-        refresh.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.REFRESH.name())), update);
 
-        HBox cont = new HBox(500);
+
+
         CheckBox run = new CheckBox();
         run.setIndeterminate(false);
         run.setSelected(classif.tocontinue());
-        cont.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.CONTINUOUS.name())), run);
+
 
         Button done = new Button("Done");
         done.setOnAction(e -> {
@@ -79,7 +81,9 @@ public class ClassifDialog {
             }
         });
 
-        holder.getChildren().addAll(max, refresh, cont, done);
+        text.getChildren().addAll(new Text(manager.getPropertyValue(AppPropertyTypes.MAX_ITERATIONS.name())), new Text(manager.getPropertyValue(AppPropertyTypes.REFRESH.name())), new Text(manager.getPropertyValue(AppPropertyTypes.CONTINUOUS.name())), done);
+        input.getChildren().addAll(maxIter, update, run);
+        holder.getChildren().addAll(text, input);
         Scene sc = new Scene(holder);
         stage.setScene(sc);
     }

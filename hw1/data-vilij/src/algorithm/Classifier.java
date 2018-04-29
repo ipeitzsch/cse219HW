@@ -1,6 +1,7 @@
 package algorithm;
 
-import dataprocessors.ClassProcessor;
+import dataprocessors.AlgProcessor;
+
 import dataprocessors.DataSet;
 import vilij.templates.ApplicationTemplate;
 
@@ -30,7 +31,7 @@ public abstract class Classifier implements Algorithm {
     protected int maxIterations;
     protected int updateInterval;
     protected DataSet dataset;
-    protected ClassProcessor cp;
+    protected AlgProcessor cp;
     // currently, this value does not change after instantiation
     protected AtomicBoolean tocontinue;
 
@@ -53,24 +54,30 @@ public abstract class Classifier implements Algorithm {
         }
         return tocontinue.get();
     }
+    @Override
     public void setMax(int i)
     {
         maxIterations = i;
     }
+    @Override
     public void setUpdate(int i)
     {
         updateInterval = i;
     }
+    @Override
     public void setToContinue(boolean b)
     {
         tocontinue.set(b);
     }
-    public void setCP(ClassProcessor c)
+    @Override
+    public void setCP(AlgProcessor c)
     {
         cp = c;
     }
+    @Override
     public void setDataset(DataSet d)
     {
         dataset = d;
     }
+
 }
