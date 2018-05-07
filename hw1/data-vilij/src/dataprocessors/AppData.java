@@ -46,9 +46,6 @@ public class AppData implements DataComponent {
         loadedData = "";
     }
 
-    public TSDProcessor getProcessor() {
-        return processor;
-    }
 
     @Override
     public void loadData(Path dataFilePath) {
@@ -114,7 +111,7 @@ public class AppData implements DataComponent {
     {
         isLoaded = b;
     }
-    public boolean checkValid(String text)
+    private boolean checkValid(String text)
     {
         ArrayList<Integer> a = new ArrayList<>();
         AtomicBoolean b = new AtomicBoolean();
@@ -165,10 +162,17 @@ public class AppData implements DataComponent {
     public void saveData(Path dataFilePath) {
         // NOTE: completing this method was not a part of HW 1. You may have implemented file saving from the
         // confirmation dialog elsewhere in a different way.
-        try (PrintWriter writer = new PrintWriter(Files.newOutputStream(dataFilePath))) {
-            writer.write(((AppUI) applicationTemplate.getUIComponent()).getCurrentText());
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
+        String toSave = loadedData;
+        if(!isLoaded)
+        {
+            toSave = ((AppUI) applicationTemplate.getUIComponent()).getCurrentText();
+        }
+        if(checkValid(toSave)) {
+            try (PrintWriter writer = new PrintWriter(Files.newOutputStream(dataFilePath))) {
+                writer.write(toSave);
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
         }
     }
 
@@ -223,8 +227,7 @@ public class AppData implements DataComponent {
     {
        return processor.getNumLabels();
     }
-    public int getLabelsLength() { return labels.size(); }
-    public int getLinesLength() { return processor.getList().size(); }
+
     public boolean hasNull()
     {
         return processor.isNull();
@@ -293,5 +296,21 @@ public class AppData implements DataComponent {
     public HashMap<String, Point2D> getPoints()
     {
         return processor.getPoints();
+    }
+    public double getMaxX()
+    {
+        return processor.getMaxX();
+    }
+    public double getMinX()
+    {
+        return processor.getMinX();
+    }
+    public double getMaxY()
+    {
+        return processor.getMaxY();
+    }
+    public double getMinY()
+    {
+        return processor.getMinY();
     }
 }

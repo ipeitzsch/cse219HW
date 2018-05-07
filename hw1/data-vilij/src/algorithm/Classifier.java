@@ -33,8 +33,8 @@ public abstract class Classifier implements Algorithm {
     protected DataSet dataset;
     protected AlgProcessor cp;
     // currently, this value does not change after instantiation
-    protected AtomicBoolean tocontinue;
-
+    protected AtomicBoolean continuous;
+    protected AtomicBoolean toContinue;
     @Override
     public int getMaxIterations() {
         return maxIterations;
@@ -47,12 +47,12 @@ public abstract class Classifier implements Algorithm {
 
     @Override
     public boolean tocontinue() {
-        if(tocontinue == null)
+        if(continuous == null)
         {
-            tocontinue = new AtomicBoolean();
-            tocontinue.set(false);
+            continuous = new AtomicBoolean();
+            continuous.set(false);
         }
-        return tocontinue.get();
+        return continuous.get();
     }
     @Override
     public void setMax(int i)
@@ -67,7 +67,7 @@ public abstract class Classifier implements Algorithm {
     @Override
     public void setToContinue(boolean b)
     {
-        tocontinue.set(b);
+        continuous.set(b);
     }
     @Override
     public void setCP(AlgProcessor c)

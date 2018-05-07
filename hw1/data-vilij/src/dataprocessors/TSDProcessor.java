@@ -84,7 +84,7 @@ public final class TSDProcessor {
                       Point2D  point = new Point2D(Double.parseDouble(pair[0]), Double.parseDouble(pair[1]));
                       dataLabels.put(name, label);
                       dataPoints.put(name, point);
-                      if(label.equals("null"))
+                      if(label.equals("null") || label.equals(""))
                       {
                           hasNull.set(true);
                       }
@@ -97,8 +97,41 @@ public final class TSDProcessor {
                       hadAnError.set(true);
                   }
               });
+        calcMinsAndMaxs();
         if (errorMessage.length() > 0)
             throw new Exception(errorMessage.toString());
+    }
+
+    private void calcMinsAndMaxs()
+    {
+        boolean flag = true;
+        for(String s : dataPoints.keySet())
+        {
+            if(flag)
+            {
+                flag = false;
+                min = dataPoints.get(s).getX();
+                max = dataPoints.get(s).getX();
+                minY = dataPoints.get(s).getY();
+                maxY = dataPoints.get(s).getY();
+            }
+            if(min > dataPoints.get(s).getX())
+            {
+                min = dataPoints.get(s).getX();
+            }
+            else if(max < dataPoints.get(s).getX())
+            {
+                max = dataPoints.get(s).getX();
+            }
+            if(minY > dataPoints.get(s).getY())
+            {
+                minY = dataPoints.get(s).getY();
+            }
+            else if(maxY < dataPoints.get(s).getY())
+            {
+                maxY = dataPoints.get(s).getY();
+            }
+        }
     }
 
     public int getNumLabels()
@@ -158,37 +191,12 @@ public final class TSDProcessor {
     }
     private void setTooltip(XYChart<Number, Number> chart)
     {
-        boolean flag = true;
         ObservableList<XYChart.Series<Number,Number>> a = chart.getData();
         for(XYChart.Series<Number, Number> ser : a)
         {
             ObservableList<XYChart.Data<Number,Number>> o = ser.getData();
             for(XYChart.Data<Number,Number> c : o)
             {
-                if(flag)
-                {
-                    min = (Double)c.getXValue();
-                    max = (Double)c.getXValue();
-                    minY = (Double)c.getYValue();
-                    maxY = (Double)c.getYValue();
-                    flag = false;
-                }
-                else if(min > (Double)c.getXValue())
-                {
-                    min = (Double)c.getXValue();
-                }
-                else if(max < (Double)c.getXValue())
-                {
-                    max = (Double)c.getXValue();
-                }
-                if(minY > (Double)c.getYValue())
-                {
-                    minY = (Double)c.getYValue();
-                }
-                else if(maxY < (Double)c.getYValue())
-                {
-                    maxY = (Double)c.getYValue();
-                }
                 Tooltip t = new Tooltip(c.getExtraValue().toString());
                 Tooltip.install(c.getNode(), t);
             }

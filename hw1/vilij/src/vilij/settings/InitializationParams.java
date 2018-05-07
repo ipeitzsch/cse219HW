@@ -28,6 +28,8 @@ public enum InitializationParams {
     PROPERTIES_XML("properties.xml"),
     /** The properties file specific to the application's workspace requirements. */
     WORKSPACE_PROPERTIES_XML("app-properties.xml"),
+    /** The properties file specific to the algorithm names. */
+    ALGORITHM_PROPERTIES_XML("alg-properties.xml"),
     /** The XML schema definition for the properties files. */
     SCHEMA_DEFINITION("property-schema.xsd");
 

@@ -50,5 +50,7 @@ public enum AppPropertyTypes {
     LOAD_WORK_TITLE,
     STILL_RUNNING_TITLE,
     STILL_RUNNING_MSG,
-    DONE;
+    DONE,
+    ALG_PATH,
+    ALG_PROP_PATH;
 }

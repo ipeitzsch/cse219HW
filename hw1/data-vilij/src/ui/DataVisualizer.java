@@ -25,7 +25,7 @@ public final class DataVisualizer extends ApplicationTemplate {
 
     @Override
     protected boolean propertyAudit() {
-        boolean failed = manager == null || !(loadProperties(PROPERTIES_XML) && loadProperties(WORKSPACE_PROPERTIES_XML));
+        boolean failed = manager == null || !(loadProperties(PROPERTIES_XML) && loadProperties(WORKSPACE_PROPERTIES_XML) && loadProperties(ALGORITHM_PROPERTIES_XML));
         if (failed)
             errorDialog.show(LOAD_ERROR_TITLE.getParameterName(), PROPERTIES_LOAD_ERROR_MESSAGE.getParameterName());
         return !failed;

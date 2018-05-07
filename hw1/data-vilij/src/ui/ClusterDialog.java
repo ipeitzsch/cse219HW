@@ -79,6 +79,7 @@ public class ClusterDialog {
 
             try{
                 if(Integer.parseInt(num.getText()) >= 2 || Integer.parseInt(num.getText()) <= 4) {
+
                     comms.setClust(selection, Integer.parseInt(maxIter.getText()), Integer.parseInt(update.getText()), run.isSelected(), Integer.parseInt(num.getText()), apt);
                     stage.close();
                 }
@@ -90,6 +91,7 @@ public class ClusterDialog {
             }
             catch(Exception xe)
             {
+
                 ErrorDialog er = (ErrorDialog)(apt.getDialog(Dialog.DialogType.ERROR));
                 er.show("Error", manager.getPropertyValue(AppPropertyTypes.INTEGERS_ONLY.name()));
             }

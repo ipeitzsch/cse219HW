@@ -1,0 +1,9 @@
+<properties>
+	<property_list>
+		<property name = "KMEANCLUSTERER" value = "KMeanClusterer"/>
+		<property name = "RANDOMCLASSIFIER" value = "RandomClassifier"/>
+		<property name = "RANDOMCLUSTER" value = "RandomCluster"/>
+
+	</property_list>
+	<property_options_list/>
+</properties>

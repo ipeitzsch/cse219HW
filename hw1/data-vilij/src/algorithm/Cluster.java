@@ -4,6 +4,7 @@ import dataprocessors.AlgProcessor;
 import dataprocessors.DataSet;
 import vilij.templates.ApplicationTemplate;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,10 +22,10 @@ public abstract class Cluster implements Algorithm{
     protected int updateInterval;
     protected int numLabels;
     // currently, this value does not change after instantiation
-    protected AtomicBoolean tocontinue;
+    protected AtomicBoolean continuous;
     protected AlgProcessor cp;
     protected DataSet dataSet;
-
+    protected AtomicBoolean toContinue;
     @Override
     public int getMaxIterations() {
         return maxIterations;
@@ -37,12 +38,12 @@ public abstract class Cluster implements Algorithm{
 
     @Override
     public boolean tocontinue() {
-        if(tocontinue == null)
+        if(continuous == null)
         {
-            tocontinue = new AtomicBoolean();
-            tocontinue.set(false);
+            continuous = new AtomicBoolean();
+            continuous.set(false);
         }
-        return tocontinue.get();
+        return continuous.get();
     }
 
     public int getNumLabels()
@@ -62,22 +63,29 @@ public abstract class Cluster implements Algorithm{
     @Override
     public void setToContinue(boolean b)
     {
-        tocontinue.set(b);
+        if(continuous == null)
+        {
+            continuous = new AtomicBoolean();
+        }
+        continuous.set(b);
     }
 
     public void setNumLabels(int i)
     {
         numLabels = i;
     }
-
+    @Override
     public void setCP(AlgProcessor c)
     {
         cp = c;
     }
-
+    @Override
     public void setDataset(DataSet d)
     {
         dataSet = d;
     }
 
+    public void flush()  {
+        cp.refresh(new HashMap<String, String>(dataSet.getLabels()));
+    }
 }

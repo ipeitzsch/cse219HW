@@ -79,6 +79,9 @@ public final class AppUI extends UITemplate {
                     }
                     textArea.setText(h);
                 }
+                if(!oldValue.equals(newValue)) {
+                    ((AppData) applicationTemplate.getDataComponent()).setLoaded(false);
+                }
             }
         });
     }
@@ -130,7 +133,6 @@ public final class AppUI extends UITemplate {
             algPane.getChildren().addAll(classifier, cluster);
             setClusterDisable(true);
             setClassifierDisable(true);
-            a.setLoaded(false);
         }
     }
     public void setClassifierDisable(boolean b)
@@ -251,7 +253,6 @@ public final class AppUI extends UITemplate {
                 algPane.getChildren().addAll(classifier, cluster);
                 setClusterDisable(true);
                 setClassifierDisable(true);
-                a.setLoaded(false);
             }
 
 
@@ -339,7 +340,20 @@ public final class AppUI extends UITemplate {
             if (hasNewText) {
                 try {
                     AppData dataComponent = (AppData) applicationTemplate.getDataComponent();
-
+                    NumberAxis y = new NumberAxis();
+                    y.setUpperBound(dataComponent.getMaxY() + 3);
+                    y.setLowerBound(dataComponent.getMinY() - 3);
+                    y.setAutoRanging(false);
+                    NumberAxis x = new NumberAxis();
+                    x.setLowerBound(dataComponent.getMinX() - 3);
+                    x.setUpperBound(dataComponent.getMaxX() + 3);
+                    x.setAutoRanging(false);
+                    StackPane right = (StackPane) workspace.getChildren().get(1);
+                    right.getChildren().remove(chart);
+                    chart = new LineChart<>(x, y);
+                    chart.setTitle(applicationTemplate.manager.getPropertyValue(AppPropertyTypes.CHART_TITLE.name()));
+                    chart.setAnimated(false);
+                    right.getChildren().add(chart);
                     AppActions a = (AppActions)applicationTemplate.getActionComponent();
                     a.handleDisplayRequest();
 

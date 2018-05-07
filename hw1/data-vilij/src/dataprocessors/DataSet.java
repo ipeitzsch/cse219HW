@@ -56,7 +56,9 @@ public class DataSet {
 
     }
 
-    public Map<String, String> getLabels()     { return labels; }
+    public Map<String, String> getLabels()     {
+        return labels;
+    }
 
     public Map<String, Point2D> getLocations() { return locations; }
 

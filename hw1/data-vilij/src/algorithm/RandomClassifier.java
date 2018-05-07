@@ -21,16 +21,6 @@ public class RandomClassifier extends Classifier {
     private DataSet dataset;
 
 
-    public RandomClassifier(DataSet dataset,
-                            int maxIterations,
-                            int updateInterval,
-                            boolean tocontinue) {
-        this.dataset = dataset;
-        this.maxIterations = maxIterations;
-        this.updateInterval = updateInterval;
-        this.tocontinue = new AtomicBoolean(tocontinue);
-
-    }
     public RandomClassifier(){
        // dataset = new DataSet(applicationTemplate);
         cp = new AlgProcessor();

@@ -62,10 +62,10 @@ public final class AppActions implements ActionComponent {
     private ApplicationTemplate applicationTemplate;
 
     /** Path to the data file currently active. */
-    Path dataFilePath;
+    private Path dataFilePath;
 
     /** The boolean property marking whether or not there are any unsaved changes. */
-    SimpleBooleanProperty isUnsaved;
+    private SimpleBooleanProperty isUnsaved;
     private AtomicBoolean isRunning = new AtomicBoolean(false);
     private AppComms comms;
     private ArrayList<CheckBox> boxes;
@@ -75,7 +75,7 @@ public final class AppActions implements ActionComponent {
     public AppActions(ApplicationTemplate applicationTemplate) {
         this.applicationTemplate = applicationTemplate;
         this.isUnsaved = new SimpleBooleanProperty(false);
-        comms = new AppComms();
+        comms = new AppComms(applicationTemplate);
         boxes = new ArrayList<>();
     }
 
@@ -89,10 +89,11 @@ public final class AppActions implements ActionComponent {
                 applicationTemplate.getUIComponent().clear();
                 isUnsaved.set(false);
                 dataFilePath = null;
+                ((AppData)(applicationTemplate.getDataComponent())).setLoaded(false);
             }
         } catch (IOException e) { errorHandlingHelper(); }
     }
-    public boolean checkValid(String text)
+    private boolean checkValid(String text)
     {
         ArrayList<Integer> a = new ArrayList<>();
         AtomicBoolean b = new AtomicBoolean();
@@ -108,8 +109,8 @@ public final class AppActions implements ActionComponent {
                             throw new Exception("Invalid/Repeated name: " + list.get(0) + ".");
                         }
                         String[] pair  = list.get(2).split(",");
-                        int i = Integer.parseInt(pair[0]);
-                        int j = Integer.parseInt(pair[1]);
+                        double i = Double.parseDouble(pair[0]);
+                        double j = Double.parseDouble(pair[1]);
                         a.add(0);
                     } catch (Exception e) {
 
@@ -156,11 +157,9 @@ public final class AppActions implements ActionComponent {
                 d.setLabels(ap.getLabels());
                 d.setLocations(ap.getPoints());
                 c.setDataset(d);
+
                 AlgProcessor cp = new AlgProcessor(a.getChart(), ap);
                 c.setCP(cp);
-
-
-
 
                 if(c.tocontinue()) {
                     isRunning.set(true);
