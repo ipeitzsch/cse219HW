@@ -106,7 +106,7 @@ public final class AppActions implements ActionComponent {
                         b.set(true);
                         if(!(list.get(0).startsWith("@")) || !(g.add(list.get(0))))
                         {
-                            throw new Exception("Invalid/Repeated name: " + list.get(0) + ".");
+                            throw new Exception(applicationTemplate.manager.getPropertyValue(AppPropertyTypes.INVALID_NAME_ERROR.name()) + list.get(0) + ".");
                         }
                         String[] pair  = list.get(2).split(",");
                         double i = Double.parseDouble(pair[0]);
@@ -117,7 +117,7 @@ public final class AppActions implements ActionComponent {
                         ErrorDialog     dialog   = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
                         PropertyManager manager  = applicationTemplate.manager;
                         String          errTitle = manager.getPropertyValue(PropertyTypes.SAVE_ERROR_TITLE.name());
-                        String          errMsg   = "Data in text area is not valid. ";
+                        String          errMsg   = manager.getPropertyValue(AppPropertyTypes.INVALID_TEXT_FIELD.name());
                         String          errInput = "Error on line " + (a.size() + 1) + ". " + e.getMessage();
                         dialog.show(errTitle, errMsg + errInput);
                         b.set(false);
@@ -158,7 +158,7 @@ public final class AppActions implements ActionComponent {
                 d.setLocations(ap.getPoints());
                 c.setDataset(d);
 
-                AlgProcessor cp = new AlgProcessor(a.getChart(), ap);
+                AlgProcessor cp = new AlgProcessor(ap);
                 c.setCP(cp);
 
                 if(c.tocontinue()) {
@@ -327,20 +327,20 @@ public final class AppActions implements ActionComponent {
     public void handleScreenshotRequest() throws IOException {
         AppUI a = (AppUI)(applicationTemplate.getUIComponent());
         Image img = a.getChart().snapshot(new SnapshotParameters(), null);
-
+        PropertyManager manager = applicationTemplate.manager;
 
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save Image");
+        fileChooser.setTitle(manager.getPropertyValue(AppPropertyTypes.SAVE_SCRNSHOT_TITLE.name()));
 
-        String description = "Image File";
-        String extension = ".png";
+        String description = manager.getPropertyValue(AppPropertyTypes.SAVE_SCRNSHOT_DESC.name());
+        String extension = manager.getPropertyValue(AppPropertyTypes.SAVE_SCRNSHOT_EXT.name());
 
         ExtensionFilter extFilter = new ExtensionFilter(String.format("%s (.*%s)", description, extension),
                 String.format("*.%s", extension));
         fileChooser.getExtensionFilters().addAll(extFilter);
         File file = fileChooser.showSaveDialog(applicationTemplate.getUIComponent().getPrimaryWindow());
         if (file != null) {
-            ImageIO.write(SwingFXUtils.fromFXImage(img,null), "png", file);
+            ImageIO.write(SwingFXUtils.fromFXImage(img,null), manager.getPropertyValue(AppPropertyTypes.SAVE_SCRNSHOT_FORMAT.name()), file);
             a.setScreenShotDisable(true);
         }
 
@@ -384,7 +384,7 @@ public final class AppActions implements ActionComponent {
             options.setOnAction(e -> {
                 ClassifDialog cl = new ClassifDialog(s, comms, applicationTemplate);
 
-                cl.show(s + " Options");
+                cl.show(s + manager.getPropertyValue(AppPropertyTypes.OPTIONS.name()));
             });
             holder.getChildren().addAll(c, new Text(s), options);
             algPane.getChildren().add(holder);
@@ -434,7 +434,7 @@ public final class AppActions implements ActionComponent {
             options.setOnAction(e -> {
                 ClusterDialog cl = new ClusterDialog(s, comms, applicationTemplate);
 
-                cl.show(s + " Options");
+                cl.show(s + manager.getPropertyValue(AppPropertyTypes.OPTIONS.name()));
             });
             holder.getChildren().addAll(c, new Text(s), options);
             algPane.getChildren().add(holder);

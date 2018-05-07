@@ -74,13 +74,13 @@ public class ClusterDialog {
         run.setSelected(cluster.tocontinue());
 
 
-        Button done = new Button("Done");
+        Button done = new Button(manager.getPropertyValue(AppPropertyTypes.READ_DONE.name()));
         done.setOnAction(e -> {
 
             try{
                 if(Integer.parseInt(num.getText()) >= 2 || Integer.parseInt(num.getText()) <= 4) {
 
-                    comms.setClust(selection, Integer.parseInt(maxIter.getText()), Integer.parseInt(update.getText()), run.isSelected(), Integer.parseInt(num.getText()), apt);
+                    comms.setClust(selection, Integer.parseInt(maxIter.getText()), Integer.parseInt(update.getText()), run.isSelected(), Integer.parseInt(num.getText()));
                     stage.close();
                 }
                 else

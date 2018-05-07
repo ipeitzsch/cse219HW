@@ -85,7 +85,7 @@ public abstract class Cluster implements Algorithm{
         dataSet = d;
     }
 
-    public void flush()  {
+    protected void flush()  {
         cp.refresh(new HashMap<String, String>(dataSet.getLabels()));
     }
 }

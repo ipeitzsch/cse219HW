@@ -273,14 +273,86 @@ public class AppActionsTest {
                 p = p.toAbsolutePath();
                 PrintWriter pw =  new PrintWriter(Files.newOutputStream(p));
                 pw.write(text);
+                pw.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    //@Test
+    @Test
     /*
-        Saving data to a file with improperly formatted data
+        Saving data to a file with improperly formatted data.
+        This data should not be saved to a file because it will fail the checkvalid() test.
      */
+    public void improperSave()
+    {
+        text = "@a label1 4,5\n";
+        if(checkValid())
+        {
+            try
+            {
+
+                Path p = Paths.get("testRes\\testData\\output.tsd");
+                p = p.toAbsolutePath();
+                PrintWriter pw =  new PrintWriter(Files.newOutputStream(p));
+                pw.write(text);
+                pw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else
+        {
+            System.out.println("Was not saved.");
+        }
+    }
+
+    @Test
+    /*
+        Saving data with special characters in the label.
+        This data should be saved to the file like normal.
+     */
+    public void saveSpecial()
+    {
+        text = "@a\t#@$%\t4,5\n";
+        if(checkValid())
+        {
+            try
+            {
+
+                Path p = Paths.get("testRes\\testData\\output.tsd");
+                p = p.toAbsolutePath();
+                PrintWriter pw =  new PrintWriter(Files.newOutputStream(p));
+                pw.write(text);
+                pw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Test
+    /*
+        Saving data with numbers for labels.
+        This data should be saved normally.
+     */
+    public void saveNumbers()
+    {
+        text = "@a\t453\t4,5\n";
+        if(checkValid())
+        {
+            try
+            {
+
+                Path p = Paths.get("testRes\\testData\\output.tsd");
+                p = p.toAbsolutePath();
+                PrintWriter pw =  new PrintWriter(Files.newOutputStream(p));
+                pw.write(text);
+                pw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

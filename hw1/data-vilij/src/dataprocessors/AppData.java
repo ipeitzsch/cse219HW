@@ -84,7 +84,7 @@ public class AppData implements DataComponent {
                 } else {
                     cc = 10;
                 }
-                c.show("Load File", "Successfully loaded " + count + " lines. " + cc + " lines are shown in the text area.");
+                c.show(applicationTemplate.manager.getPropertyValue(AppPropertyTypes.SUCCESSFUL_LOAD_TITLE.name()), "Successfully loaded " + count + " lines. " + cc + " lines are shown in the text area.");
             }
         }
         catch(Exception e){
@@ -124,7 +124,7 @@ public class AppData implements DataComponent {
 
                         if(!(list.get(0).startsWith("@")) || !(g.add(list.get(0))))
                         {
-                            throw new Exception("Invalid/Repeated name: " + list.get(0) + ".");
+                            throw new Exception(applicationTemplate.manager.getPropertyValue(AppPropertyTypes.INVALID_NAME_ERROR.name()) + list.get(0) + ".");
                         }
                         String[] pair  = list.get(2).split(",");
                         double i = Double.parseDouble(pair[0]);
@@ -135,7 +135,7 @@ public class AppData implements DataComponent {
                         ErrorDialog     dialog   = (ErrorDialog) applicationTemplate.getDialog(Dialog.DialogType.ERROR);
                         PropertyManager manager  = applicationTemplate.manager;
                         String          errTitle = manager.getPropertyValue(PropertyTypes.LOAD_ERROR_TITLE.name());
-                        String          errMsg   = "Data in text area is not valid. ";
+                        String          errMsg   = manager.getPropertyValue(AppPropertyTypes.INVALID_TEXT_FIELD.name());
                         String          errInput = "Error on line " + (a.size() + 1) + ". " + e.getMessage();
                         dialog.show(errTitle, errMsg + errInput);
                     }
@@ -270,7 +270,7 @@ public class AppData implements DataComponent {
             if (count.get() != 0) {
                 chart.getData().remove(chart.getData().size() - 1);
             }
-            line.get(count.get()).setName("LINE");
+            line.get(count.get()).setName(applicationTemplate.manager.getPropertyValue(AppPropertyTypes.LINE.name()));
             chart.getData().add(line.get(count.get()));
             count.set(count.get() + 1);
             if (count.get() == line.size()) {

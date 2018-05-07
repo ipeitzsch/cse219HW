@@ -68,10 +68,10 @@ public class ClassifDialog {
         run.setSelected(classif.tocontinue());
 
 
-        Button done = new Button("Done");
+        Button done = new Button(manager.getPropertyValue(AppPropertyTypes.READ_DONE.name()));
         done.setOnAction(e -> {
             try{
-                comms.setClasssif(selection, Integer.parseInt(maxIter.getText()), Integer.parseInt(update.getText()), run.isSelected(), this.apt);
+                comms.setClasssif(selection, Integer.parseInt(maxIter.getText()), Integer.parseInt(update.getText()), run.isSelected());
                 stage.close();
             }
             catch(Exception xe)

@@ -79,5 +79,8 @@ public abstract class Classifier implements Algorithm {
     {
         dataset = d;
     }
+    protected synchronized void flush() {
+        cp.addLine(this.getOutput());
+    }
 
 }

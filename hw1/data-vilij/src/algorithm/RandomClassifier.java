@@ -52,9 +52,7 @@ public class RandomClassifier extends Classifier {
     }
 
     // for internal viewing only
-    private synchronized void flush() {
-        cp.addLine(this.getOutput());
-    }
+
 
     /** A placeholder main method to just make sure this code runs smoothly
     public static void main(String... args) throws IOException {

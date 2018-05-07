@@ -69,16 +69,48 @@ public class AppComms {
     {
         return algorithms.get(s);
     }
-    public void setClasssif(String name, int max, int refresh, boolean cont, ApplicationTemplate a)
+    public void setClasssif(String name, int max, int refresh, boolean cont)
     {
         Classifier c = (Classifier) algorithms.get(name);
+        if(max < 1)
+        {
+            max = 1;
+        }
+        if(refresh < 1)
+        {
+            refresh = 1;
+        }
+        if(refresh > max)
+        {
+            refresh = max;
+        }
         c.setMax(max);
         c.setUpdate(refresh);
         c.setToContinue(cont);
         algorithms.put(name, c);
     }
-    public void setClust(String name, int max, int refresh, boolean cont, int num, ApplicationTemplate a)
+    public void setClust(String name, int max, int refresh, boolean cont, int num)
     {
+        if(max < 1)
+        {
+            max = 1;
+        }
+        if(refresh < 1)
+        {
+            refresh = 1;
+        }
+        if(num < 2)
+        {
+            num = 2;
+        }
+        if(num > 4)
+        {
+            num = 4;
+        }
+        if(refresh > max)
+        {
+            refresh = max;
+        }
         Cluster c = (Cluster) algorithms.get(name);
         c.setMax(max);
         c.setUpdate(refresh);

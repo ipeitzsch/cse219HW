@@ -167,7 +167,6 @@ public final class TSDProcessor {
             Set<Node>  n = chart.lookupAll(".series"  + (count));
             for(Node x : n)
             {
-
                 x.setStyle("-fx-stroke: none;");
             }
             count++;

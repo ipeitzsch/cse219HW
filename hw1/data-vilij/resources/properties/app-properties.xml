@@ -52,6 +52,19 @@ functionality within the main workspace. -->
         <property name = "DONE" value="Done."/>
         <property name = "ALG_PATH" value = "algorithm."/>
         <property name="ALG_PROP_PATH" value="settings.AlgPropertyTypes"/>
+        <property name="INVALID_TEXT_FIELD" value="Data in text area is not valid. "/>
+        <property name="INVALID_NAME_ERROR" value="Invalid/Repeated name: "/>
+        <property name="SAVE_SCRNSHOT_TITLE" value ="Save Image"/>
+        <property name = "SAVE_SCRNSHOT_DESC" value = "Image File"/>
+        <property name = "SAVE_SCRNSHOT_EXT" value=".png"/>
+        <property name="SAVE_SCRNSHOT_FORMAT" value="png"/>
+        <property name="OPTIONS" value=" Options"/>
+        <property name="SUCCESSFUL_LOAD_TITLE" value="Load File"/>
+        <property name="LINE" value="LINE"/>
+        <property name="EDIT" value="Edit"/>
+        <property name="READ_DONE" value="Done"/>
+        <property name="CLASSIFICATION" value="Classification"/>
+        <property name="CLUSTER" value="Cluster"/>
     </property_list>
     <property_options_list/>
 </properties>

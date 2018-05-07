@@ -215,7 +215,7 @@ public final class AppUI extends UITemplate {
         chart.setTitle(manager.getPropertyValue(AppPropertyTypes.CHART_TITLE.name()));
         chart.setAnimated(false);
 
-        readOnly = new Button("Done");
+        readOnly = new Button(manager.getPropertyValue(AppPropertyTypes.READ_DONE.name()));
         readOnly.setOnAction(e -> {
             textArea.setDisable(!textArea.isDisabled());
             AppData a = (AppData)(applicationTemplate.getDataComponent());
@@ -244,15 +244,17 @@ public final class AppUI extends UITemplate {
                     setClassifierDisable(false);
                 }
 
-                readOnly.setText("Edit");
+                readOnly.setText(manager.getPropertyValue(AppPropertyTypes.EDIT.name()));
+                disableDisp(false);
             }
             else
             {
-                readOnly.setText("Done");
+                readOnly.setText(manager.getPropertyValue(AppPropertyTypes.READ_DONE.name()));
                 algPane.getChildren().remove(0, algPane.getChildren().size());
                 algPane.getChildren().addAll(classifier, cluster);
                 setClusterDisable(true);
                 setClassifierDisable(true);
+                disableDisp(true);
             }
 
 
@@ -282,13 +284,13 @@ public final class AppUI extends UITemplate {
         String runPath = String.join(SEPARATOR,
                 iconsPath,
                 manager.getPropertyValue(AppPropertyTypes.RUN_ICON.name()));
-        displayButton = setToolbarButton(runPath, manager.getPropertyValue(AppPropertyTypes.RUN_TOOLTIP.name()), false);
+        displayButton = setToolbarButton(runPath, manager.getPropertyValue(AppPropertyTypes.RUN_TOOLTIP.name()), true);
 
         HBox.setHgrow(processButtonsBox, Priority.ALWAYS);
         processButtonsBox.getChildren().addAll(displayButton, readOnly);
 
-        classifier = new Button("Classification");
-        cluster = new Button("Cluster");
+        classifier = new Button(manager.getPropertyValue(AppPropertyTypes.CLASSIFICATION.name()));
+        cluster = new Button(manager.getPropertyValue(AppPropertyTypes.CLUSTER.name()));
         setClusterDisable(true);
         setClassifierDisable(true);
         algPane = new VBox();
